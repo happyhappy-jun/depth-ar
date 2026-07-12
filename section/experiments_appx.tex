@@ -128,18 +128,18 @@ The per-task numbers behind \Cref{fig:dissociation} are given in \Cref{tab:main}
 Recovered-gap \emph{fractions} on accuracy divide by a Dense-minus-Plain-Skip denominator
 only tens of graded answers wide, and are correspondingly unstable. We therefore tested
 every \mname-versus-Plain-Skip accuracy comparison against the standard error of a
-difference of two proportions, and report absolute counts in the body. Of the \phm{37}
-comparisons, \phm{35} are not significant at the two-sided $95\%$ level. A $1$-SE band is
+difference of two proportions, and report absolute counts in the body. Of the \phm{41}
+comparisons, \phm{37} are not significant at the two-sided $95\%$ level. A $1$-SE band is
 not a significance test: a delta at $1.0$--$1.2$ SE has $p \approx 0.25$ and establishes
 nothing.
 
-Only \phm{2} comparisons are significant, and both survive Bonferroni correction over the
-family of \phm{37} tests actually performed ($\alpha/m = \phm{0.00135}$, $|z| \ge
-\phm{3.20}$): recovery-maximising selection on Qwen2.5-1.5B at $k=2$
+Only \phm{4} comparisons are significant, and both survive Bonferroni correction over the
+family of \phm{41} tests actually performed ($\alpha/m = \phm{0.00122}$, $|z| \ge
+\phm{3.23}$): recovery-maximising selection on Qwen2.5-1.5B at $k=2$
 ($+\phm{132}$ answers, $z=\phm{6.45}$) and $k=4$ ($+\phm{90}$, $z=\phm{4.37}$). Both are
 earned on models plain skipping has already destroyed. Correction matters here rather
 than being ceremonial: an uncorrected $95\%$ threshold over \phm{37} tests would expect
-about \phm{1.85} false positives by chance, so the uncorrected borderline case
+about \phm{2.05} false positives by chance, so the uncorrected borderline case
 (0.5B, recovery-top, $k=2$, $z=\phm{1.95}$) cannot be claimed.
 
 \paragraph{A third source of uncertainty: the evaluation is not deterministic.} Binomial
@@ -157,10 +157,24 @@ inside sampling error. We do not regard this as a weakness of the analysis: it l
 floor, and our refusal to claim either an improvement or a regression there sits exactly on
 it.
 
-The two Bonferroni survivors are unaffected, and we state the ratio rather than assert
-immunity: at \phm{132} and \phm{90} net answers they are \phm{33}$\times$ and
-\phm{22.5}$\times$ the measured jitter. No reordering of the evaluation batch produces
-effects of that size.
+The Bonferroni survivors are unaffected, and we state the ratio rather than assert immunity.
+Four of \phm{41} comparisons survive correction: Qwen2.5-7B under damage-based selection at
+$k=8$ (\phm{89} answers, $z=\phm{4.31}$; and \phm{74} for the cross-token extension,
+$z=\phm{3.57}$), and Qwen2.5-1.5B under damage-seeking selection at $k=2$ and $k=4$
+(\phm{132} and \phm{90} answers, $z=\phm{6.45}$ and $\phm{4.37}$). The 1.5B survivors are
+\phm{33}$\times$ and \phm{22.5}$\times$ the measured jitter. No reordering of the evaluation
+batch produces effects of that size.
+
+\paragraph{The axis is damage, not selection rule.} Across all \phm{26} skipping runs in this
+paper, the recovery \mname achieves correlates with the damage plain skipping does: Spearman
+$\rho = \phm{0.813}$ ($p = \phm{4.4e-07}$) between plain-skip NLL damage and \mname's NLL
+gain, and $\rho = \phm{0.486}$ ($p = \phm{0.012}$) on the accuracy axis. \emph{We report this
+as descriptive ordering, not as a fitted law.} The \phm{26} runs are not independent: budgets
+are nested, models are shared, and gain and damage share terms by construction, so the
+correlation coefficient should not be read as an effect size. The robust evidence is the
+enumeration rather than the statistic: the five largest gains all occur in high-damage runs,
+and every low-damage run is null. The aphorism summarizes that ordering; it does not
+extrapolate beyond it.
 
 We apply the significance test symmetrically. A delta inside the noise band is discounted
 whichever way it points, so we neither credit \mname with the $+18.5\%$ that five answers
@@ -245,34 +259,50 @@ in this paper is the mechanism: it identifies what the depth-only predictors wer
 \label{sec:app-pareto}
 
 \Cref{fig:dissociation} plots quality against the fraction of blocks skipped. The underlying
-cells, at damage-based selection, are below. \mname's advantage over plain skipping widens as
-compression deepens: the recovered fraction of plain-skip NLL damage rises monotonically with
-the skipping fraction on Qwen2.5-0.5B, and broadly so on 1.5B. Recovery-maximising selection
-is excluded from this table, since the models it produces are not ones anyone would deploy
-(\Cref{sec:app-noise}).
+cells, at damage-based selection, are below; recovery-maximising selection is excluded, since
+the models it produces are not ones anyone would deploy. \mname's advantage over plain
+skipping widens as compression deepens on Qwen2.5-0.5B and Qwen2.5-1.5B.
+
+It does not widen forever. On Qwen2.5-7B at \phm{42.9}\% of blocks skipped, the depth-only
+predictor \emph{breaks down}: it recovers \phm{$-6.0$}\% of the plain-skip damage, which is to
+say it is worse than simply dropping the updates (NLL \phm{6.43} against plain skipping's
+\phm{6.18}). We report this rather than truncating the sweep at the last budget that flatters
+the method. At that same point the cross-token extension remains above plain skipping
+(\phm{7.1}\% recovery, NLL \phm{5.88}), and this is the closing half of the selection story
+told earlier. At mild budgets, damage-aware selection avoids the early layers on which
+cross-token information helps, so the extension has nothing to add. At \phm{42.9}\% skipped
+the budget \emph{forces} those layers into the set (it contains layers 1 and 3), and the extra
+information finally expresses itself. Cross-token prediction matters exactly where prediction
+is hardest, which is also exactly where the depth-only predictor fails.
 
 \begin{table}[h]
 \centering
 \small
 \caption{\textbf{Frontier cells at damage-based selection.} NLL on WikiText-2 test; recovered
-is the fraction of the plain-skip damage \mname repairs.}
+is the fraction of plain-skip damage repaired. A negative value is worse than dropping the
+updates. \mname is the depth-only predictor of \cref{eq:diag}; CT is the cross-token extension
+of \Cref{sec:app-crosstoken}, evaluated only where it was run.}
 \label{tab:pareto}
 \begin{tabular}{llccccc}
 \toprule
-Model & $k$ & blocks skipped & Plain Skip NLL $\downarrow$ & \mname NLL $\downarrow$ & recovered $\uparrow$ \\
+Model & $k$ & skipped & Plain NLL $\downarrow$ & \mname NLL $\downarrow$ & \mname rec. $\uparrow$ & CT rec. $\uparrow$ \\
 \midrule
-0.5B & 6 & \phm{25.0}\% & \phm{4.45} & \phm{4.15} & \phm{18.0}\% \\
-0.5B & 8 & \phm{33.3}\% & \phm{5.93} & \phm{4.94} & \phm{31.3}\% \\
-0.5B & 10 & \phm{41.7}\% & \phm{10.29} & \phm{7.09} & \phm{42.6}\% \\
-1.5B & 6 & \phm{21.4}\% & \phm{3.24} & \phm{3.16} & \phm{8.6}\% \\
-1.5B & 8 & \phm{28.6}\% & \phm{4.08} & \phm{3.89} & \phm{11.1}\% \\
-1.5B & 10 & \phm{35.7}\% & \phm{5.43} & \phm{4.83} & \phm{19.6}\% \\
-1.5B & 12 & \phm{42.9}\% & \phm{6.39} & \phm{5.69} & \phm{17.3}\% \\
+0.5B & 6 & \phm{25.0}\% & \phm{4.45} & \phm{4.15} & \phm{18.0}\% & {--} \\
+0.5B & 8 & \phm{33.3}\% & \phm{5.93} & \phm{4.94} & \phm{31.3}\% & {--} \\
+0.5B & 10 & \phm{41.7}\% & \phm{10.29} & \phm{7.09} & \phm{42.6}\% & {--} \\
+1.5B & 6 & \phm{21.4}\% & \phm{3.24} & \phm{3.16} & \phm{8.6}\% & {--} \\
+1.5B & 8 & \phm{28.6}\% & \phm{4.08} & \phm{3.89} & \phm{11.1}\% & \phm{11.6}\% \\
+1.5B & 10 & \phm{35.7}\% & \phm{5.43} & \phm{4.83} & \phm{19.6}\% & \phm{19.8}\% \\
+1.5B & 12 & \phm{42.9}\% & \phm{6.39} & \phm{5.69} & \phm{17.3}\% & \phm{17.4}\% \\
+7B & 8 & \phm{28.6}\% & \phm{3.71} & \phm{3.05} & \phm{38.1}\% & \phm{38.1}\% \\
+7B & 12 & \phm{42.9}\% & \phm{6.18} & \phm{6.43} & \phm{-6.0}\% & \phm{7.1}\% \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \subsection{Layer selection}
+\input{tables/selection_table}
+
 \label{sec:app-selection}
 
 The three selection rules of \Cref{tab:selection} are: (i) \emph{predictability},

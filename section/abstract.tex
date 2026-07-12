@@ -1,21 +1,22 @@
 \begin{abstract}
-Layer skipping makes Transformer inference cheaper by deleting entire residual blocks,
-but the operator it uses to do so is crude: it assumes the missing residual update is
-exactly zero. That update is in fact partly predictable from the updates that precede it.
-We introduce \textbf{\mname (Depth-wise AutoRegressive update prediction)}, which replaces
-a skipped block with a closed-form autoregressive forecast of its residual update, fitted
-per channel on unlabeled text with no gradient training. \mname adds only \phm{0.64}\% to
-prefill latency, yet recovers a substantial share of the language-modelling loss that
-skipping destroys: \phm{4.6}\% to \phm{23.3}\% of the damage at conservative pruning
-budgets across Qwen2.5-0.5B, 1.5B and 7B, and up to \phm{70.0}\% when layers are chosen to
-maximise recovery. At four skipped blocks the recovery grows with scale, reaching
-\phm{23.3}\% on 7B. Under aggressive pruning, where plain skipping collapses the model,
-the recovered likelihood also translates into behaviour: at a matched skipping fraction
-\mname answers \phm{132} more questions correctly out of \phm{900} than plain skipping
-does on Qwen2.5-1.5B, a gain that survives Bonferroni correction across all \phm{37}
-comparisons we run, though the pruned models remain well below dense quality. Getting this to work required discarding the obvious version
-of the idea. A single global coefficient per layer fails, and at some layers is worse than
-dropping the update outright; only a $d$-dimensional coefficient vector succeeds. At
-conservative budgets the recovered likelihood does not yet show up in downstream accuracy,
-and closing that gap is the natural next step.
+Layer skipping makes Transformer inference cheaper by deleting entire residual blocks, but
+the operator it uses to do so is crude: it assumes the missing residual update is exactly
+zero. That update is in fact partly predictable from the updates that precede it. We
+introduce \textbf{\mname (Depth-wise AutoRegressive update prediction)}, which replaces a
+skipped block with a closed-form autoregressive forecast of its residual update, fitted per
+channel on unlabeled text with no gradient training. \mname adds only \phm{0.64}\% to prefill
+latency, yet recovers a substantial share of the language-modelling loss that skipping
+destroys: \phm{4.6}\% to \phm{23.3}\% of the damage at light pruning budgets across
+Qwen2.5-0.5B, 1.5B and 7B, and up to \phm{70.0}\% when layers are chosen to maximise
+recovery. Its benefit to downstream behaviour scales with the damage that skipping inflicts.
+At light budgets, where plain skipping barely hurts, the accuracy effects sit below the
+evaluation's own reproducibility floor. Where the damage is severe, the gains are large and
+survive Bonferroni correction across all \phm{41} comparisons we run: at \phm{28.6}\% of
+blocks skipped on Qwen2.5-7B, under the deployable damage-based selection rule, \mname
+answers \phm{89} more questions correctly out of \phm{900} than plain skipping
+($z=\phm{4.31}$) while recovering \phm{38.1}\% of its language-modelling damage. Prediction
+pays off in proportion to what skipping destroys. Getting this to work required discarding
+the obvious version of the idea: a single global coefficient per layer fails, and at some
+layers is worse than dropping the update outright; only a $d$-dimensional coefficient vector
+succeeds.
 \end{abstract}

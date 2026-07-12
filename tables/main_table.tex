@@ -6,10 +6,11 @@ matched skipped-layer sets, layers chosen by measured residual damage, the deplo
 rule. Within each budget every predictor skips the \emph{identical} blocks (verified per
 run), so differences isolate the update predictor. NLL is lower-better, accuracies
 higher-better; the best value in each column within a budget is in \textbf{bold},
-whichever method attains it. \mname wins the NLL column at every budget and scale. On
-accuracy it does not: \emph{no} difference is statistically significant at any scale
-(largest $|z| = \phm{1.18}$, against a $95\%$ bar of $1.96$ and a Bonferroni bar of
-$\phm{3.20}$). The point estimates favour Plain Skip on 0.5B and \mname on 7B, and
+whichever method attains it. \mname wins the NLL column at every budget and scale. On accuracy,
+\emph{at these light budgets} ($k \le 4$), no difference is statistically significant at any
+scale (largest $|z| = \phm{1.18}$, against a $95\%$ bar of $1.96$ and a Bonferroni bar of
+$\phm{3.23}$). At heavier budgets the picture changes and the gains become significant
+(\Cref{sec:app-pareto}). The point estimates favour Plain Skip on 0.5B and \mname on 7B, and
 neither direction clears sampling noise. Gap recovered is the fraction of the
 Dense$\rightarrow$Plain Skip \emph{average-accuracy} drop a method restores, reported
 with its absolute count in parentheses, net correct answers against Plain Skip, out of

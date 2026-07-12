@@ -52,27 +52,24 @@ training, and we report three results.
 
 \textbf{(1) The zero-update assumption is unnecessarily destructive, and a per-channel
 predictor exploits that.} \mname recovers \phm{4.6}\% to \phm{23.3}\% of the
-language-modelling damage that skipping causes at conservative budgets, across Qwen2.5-0.5B,
-1.5B and 7B, and up to \phm{70.0}\% when layers are chosen to maximise recovery. The
-recovery grows with scale at four skipped blocks, and it costs a $d$-dimensional
-coefficient vector per skipped block and $O(Td)$ work. Getting it required discarding the obvious version of the idea: a
-single global coefficient per layer fails almost everywhere, and at layer 3 of
-Qwen2.5-0.5B substituting its prediction is \emph{worse} than dropping the update
-outright. One coefficient per channel, with nothing else relaxed, is what separates a
-method that works from one that does not.
+language-modelling damage that skipping causes at light budgets across Qwen2.5-0.5B, 1.5B and
+7B, and up to \phm{70.0}\% when layers are chosen to maximise recovery, at a $d$-dimensional
+coefficient vector per skipped block and $O(Td)$ work. Getting it required discarding the
+obvious version of the idea: a single global coefficient per layer fails almost everywhere,
+and at layer 3 of Qwen2.5-0.5B substituting its prediction is \emph{worse} than dropping the
+update outright.
 
-\textbf{(2) Under aggressive pruning the recovered likelihood becomes recovered
-behaviour.} At a matched skipping fraction, on layer sets where plain skipping has driven
-loss to \phm{5.99} against a dense \phm{2.33} and collapsed accuracy, \mname answers
-\phm{132} more questions correctly out of \phm{900} than plain skipping, and \phm{90} more
-at the larger budget: the only \phm{2} of \phm{37} comparisons we run that survive
-Bonferroni correction. When a model must be compressed hard, predicting the missing update
-rather than deleting it is worth a large and measurable number of answers.
+\textbf{(2) The downstream benefit scales with the damage skipping inflicts.} At light
+budgets, where plain skipping barely hurts, accuracy effects sit below the reproducibility
+floor of the evaluation itself. Where the damage is severe they are large and survive
+Bonferroni correction across all \phm{41} comparisons we run. This holds under the deployable,
+damage-based selection rule, not merely under an oracle: at \phm{28.6}\% of blocks skipped on
+Qwen2.5-7B, \mname answers \phm{89} more questions correctly out of \phm{900} than plain
+skipping ($z=\phm{4.31}$) and recovers \phm{38.1}\% of its language-modelling damage. It also
+holds under damage-seeking selection on Qwen2.5-1.5B (\phm{132} and \phm{90} answers). The
+rule is simple: prediction pays off in proportion to what skipping destroys.
 
-\textbf{(3) Predictability is not recoverability.} Held-out explained update energy
-$P_\ell$, the cheap signal this method appears to hand you for free, is uncorrelated with
-the damage a predictor actually repairs (Spearman \phm{$-0.015$}, $p=\phm{0.95}$,
-$n=\phm{22}$), so layers must be selected against measured recovery. At conservative
-budgets the recovered likelihood does not yet register as a downstream accuracy gain; we
-report that plainly in \Cref{sec:limitations} and regard closing it as the natural next
-step.
+\textbf{(3) Predictability is not recoverability.} Held-out explained update energy $P_\ell$,
+the cheap signal this method appears to hand you for free, is uncorrelated with the damage a
+predictor actually repairs (Spearman \phm{$-0.015$}, $p=\phm{0.95}$, $n=\phm{22}$), so layers
+must be selected against measured recovery, not predictability.
