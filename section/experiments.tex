@@ -10,14 +10,11 @@
 WikiText-103 \citep{merity2017pointer} and scored on a disjoint held-out split; no task
 data is used for calibration. We report NLL and accuracy on HellaSwag
 \citep{zellers2019hellaswag}, PIQA \citep{bisk2020piqa} and ARC-Easy
-\citep{clark2018think} --- \phm{100} examples per task on 0.5B and \phm{300} on 1.5B and
-\topscale, which we hold fixed and report accuracy deltas as absolute counts against,
-since the recovered-gap fractions divide by very small denominators. Skipped blocks are non-adjacent, so no skipped layer consumes a
-\emph{predicted} update as its own input, and within a budget every predictor skips the
-\emph{identical} blocks, isolating the predictor from the selection rule. The 0.5B runs
-use FP32 on an NVIDIA TITAN X (Pascal) GPU; 1.5B and \topscale use BF16 on a single
-NVIDIA RTX 3090. No configuration uses FlashAttention. Full protocol in
-\Cref{sec:app-protocol}.
+\citep{clark2018think} (\phm{100} examples per task on 0.5B, \phm{300} on 1.5B and
+\topscale), and give accuracy deltas as absolute counts, since recovered-gap fractions
+divide by very small denominators. Skipped blocks are non-adjacent, and within a budget
+every predictor skips the \emph{identical} blocks, isolating the predictor from the
+selection rule. Full protocol, hardware and precisions in \Cref{sec:app-protocol}.
 
 \paragraph{A single coefficient per layer is not enough.} \Cref{tab:selection}
 reports the fraction of plain-skip NLL damage each predictor recovers. The scalar
@@ -29,25 +26,18 @@ budget (\phm{24.7}\% against \phm{16.3}\% at $k=4$, recovery-selected). Copy Upd
 is worse than plain skipping everywhere, so the benefit comes from \emph{fitting} the
 coefficients, not from injecting a nonzero update.
 
-\paragraph{Predictability does not imply recoverability.} The most striking
-negative result is about \emph{selection}, not prediction, and it is visible in
-\Cref{fig:momentum}. Across the 22 eligible layers of Qwen2.5-0.5B, held-out
-predictability $P_\ell$ and the fraction of skipping damage a predictor actually
-repairs are statistically unrelated (Spearman
-\phm{$-0.015$}, $p = \phm{0.95}$). Layer 3 is the extreme case: a single scalar
-explains \phm{90}\% of its update energy --- by far the most predictable layer in
-the network --- and yet substituting that prediction is markedly worse than
-dropping the update, nearly doubling the damage. Choosing layers by $P_\ell$ is
-therefore not merely suboptimal, it is actively harmful (\Cref{tab:selection},
-top block). This matters because $P_\ell$ is exactly the signal this method
-appears to hand you for free, and it is the one a practitioner would reach for
-first. Accurate reconstruction of the update in residual space is simply not the
-same objective as preserving the model's function. The same blindness recurs one
-level down, in hyperparameter selection: choosing the ridge coefficient of
-\cref{eq:fit} by held-out $P_\ell$ selects a value that leaves development NLL at
-\phm{11.01} against a dense \phm{2.73}. Because $P_\ell$ is energy-weighted,
-low-energy channels barely register in it --- and it is precisely their
-unregularized coefficients that wreck the model.
+\paragraph{Predictability does not imply recoverability.} The most striking negative
+result is about \emph{selection}, not prediction (\Cref{fig:momentum}). Across the 22
+eligible layers of Qwen2.5-0.5B, held-out predictability $P_\ell$ and the damage a
+predictor actually repairs are statistically unrelated (Spearman \phm{$-0.015$},
+$p=\phm{0.95}$), and choosing layers by $P_\ell$ is not merely suboptimal but actively
+harmful (\Cref{tab:selection}, top block). This matters because $P_\ell$ is exactly the
+signal the method appears to hand you for free, and the one a practitioner reaches for
+first: accurate reconstruction in residual space is simply not the same objective as
+preserving function. The same blindness recurs one level down --- selecting the ridge of
+\cref{eq:fit} by $P_\ell$ picks a value leaving development NLL at \phm{11.01} against a
+dense \phm{2.73}, because an energy-weighted criterion cannot see the low-energy channels
+whose unregularized coefficients wreck the model (\Cref{sec:app-ridge}).
 
 \paragraph{Likelihood recovers; behaviour recovers only where the model is ruined.}
 \Cref{fig:dissociation} carries the comparison to downstream tasks; the full
@@ -66,20 +56,10 @@ At the damage-based operating point one would actually deploy, no accuracy diffe
 significant at any of the three scales. The largest delta is $+\phm{22}$ answers of
 \phm{900} on 7B ($z=\phm{1.18}$); across all three scales and every budget the deltas
 run from \phm{$-6$} to $+\phm{22}$ answers, with several tasks \emph{exactly tied}. We
-give counts rather than recovered-gap fractions because the fraction divides by a
-Dense-minus-Plain-Skip denominator only \phm{27} answers wide at $k=2$ on 1.5B: five
-answers in a \phm{27}-answer gap, one of the three tasks exactly tied, is not a result
-however it is typeset (\Cref{sec:app-noise}). We therefore establish neither improvement
-nor regression in behaviour at the deployable point, and claim neither.
-
-So the two selection rules \emph{are} the dissociation. The rule that maximises measured
-recovery earns \mname's largest likelihood recovery anywhere (\phm{70.0}\% at $k=2$ on
-1.5B, at an absolute loss of \phm{3.43} against a dense \phm{2.33}) and its only
-significant accuracy gains --- on models whose absolute quality is unacceptable. The rule
-that keeps quality acceptable earns a real likelihood recovery (\phm{23.3}\% at $k=4$ on
-7B) and no significant accuracy effect at all. Recovery and functional repair agree only once the
-model is already ruined enough for there to be something obvious to repair. The
-depth-wise anti-correlation underlying this is quantified in \Cref{sec:app-anticorr}.
+give counts rather than recovered-gap fractions throughout: the fractions divide by
+denominators as small as \phm{27} answers, and five answers in a \phm{27}-answer gap is
+not a result however it is typeset (\Cref{sec:app-noise}). We establish neither
+improvement nor regression in behaviour at the deployable point, and claim neither.
 
 \paragraph{The forecast is cheap; that is not the problem.} On Qwen2.5-7B at the same
 four skipped blocks, \mname adds \phm{0.64}\% \emph{prefill} latency over plain skipping
@@ -92,11 +72,10 @@ at the deployable operating point, is any measurable downstream accuracy. The
 dissociation is not a cost trade-off. We measure prefill only and make no claim about
 end-to-end generation.
 
-\paragraph{Why the per-channel predictor wins is not settled.} We can dissect one
-clear case of scalar failure: at layer 3 the fitted scalar is \phm{$+1.10$} while the
-median channel coefficient is \phm{$-0.20$} and \phm{76}\% of channels are negative,
-so the norm-weighted scalar moves three quarters of the channels the wrong way. That
-cannot be the whole story, since \mname also beats the scalar where channels agree in
-sign. We report the effect and leave the mechanism open; identifying it is the most
-interesting question this work raises. Full profiles, the \mname(2) comparison, the
-noise audit and per-task results are in \Cref{sec:app-experiments}.
+\paragraph{Why the per-channel predictor wins is not settled.} At layer 3 the fitted
+scalar is \phm{$+1.10$} while the median channel coefficient is \phm{$-0.20$} and
+\phm{76}\% of channels are negative, so the scalar moves three quarters of the channels
+the wrong way. That cannot be the whole story, since \mname also beats the scalar where
+channels agree in sign. We report the effect and leave the mechanism open; identifying it
+is the most interesting question this work raises. Full profiles, the \mname(2)
+comparison, the noise audit and per-task results are in \Cref{sec:app-experiments}.

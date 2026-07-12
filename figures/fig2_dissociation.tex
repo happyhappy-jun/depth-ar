@@ -1,23 +1,17 @@
 \begin{figure*}[t]
 \centering
-\includegraphics[width=0.92\textwidth]{figures/fig2_dissociation.pdf}
-\caption{\textbf{The same method, the same layers, two different verdicts.} Quality
-against the fraction of blocks skipped, for Qwen2.5-0.5B (circles), Qwen2.5-1.5B
-(squares) and Qwen2.5-7B (triangles), with layers chosen by measured residual damage ---
-the deployable rule --- and every predictor skipping the identical blocks.
-\emph{Left:} on WikiText-2 likelihood, \mname (solid) sits below plain skipping (dashed)
-at every budget and all three scales, and below the scalar predictor (dotted); the inset
-plots the difference against plain skipping, which is negative --- an improvement ---
-throughout. \emph{Right:} on downstream accuracy the same curves at the same layer sets
-are indistinguishable from plain skipping. Error bars and the shaded inset band are
-$\pm 1$ binomial standard error; the accuracy differences straddle zero and \emph{no}
-deployable difference reaches significance at the $95\%$ level, for any budget or scale
-(\Cref{sec:app-noise}). The right panel is therefore an absence of effect, not a
-regression --- and a $\pm 1$ SE band is conservative here, since a point inside it is a
-fortiori inside a $95\%$ interval. The two panels are not a strong result and a weak
-one: they are a repair measured in one currency and its absence in another. Recovering a
-skipped layer's contribution to the loss is not recovering its contribution to the
-model's behaviour. 0.5B in FP32 on an NVIDIA TITAN X (Pascal) GPU; 1.5B and 7B in BF16
-on a single NVIDIA RTX 3090.}
+\includegraphics[width=0.80\textwidth]{figures/fig2_dissociation.pdf}
+\caption{\textbf{The same method, the same layers, two different verdicts.} Quality against
+the fraction of blocks skipped for Qwen2.5-0.5B (circles), 1.5B (squares) and 7B
+(triangles), layers chosen by measured residual damage --- the deployable rule --- with
+every predictor skipping the identical blocks. \emph{Left:} on WikiText-2 likelihood
+\mname (solid) sits below plain skipping (dashed) at every budget and all three scales,
+and below the scalar predictor (dotted). \emph{Right:} on downstream accuracy the same
+curves at the same layers are indistinguishable from plain skipping. Bars and the shaded
+inset band are $\pm 1$ binomial standard error; \emph{no} deployable difference reaches
+significance at $95\%$ at any budget or scale (\Cref{sec:app-noise}), so the right panel
+is an absence of effect, not a regression. A repair measured in one currency, and its
+absence in another. 0.5B in FP32 on an NVIDIA TITAN X (Pascal); 1.5B and 7B in BF16 on a
+single NVIDIA RTX 3090.}
 \label{fig:dissociation}
 \end{figure*}

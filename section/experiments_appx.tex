@@ -57,7 +57,7 @@ and interquartile range over synthetic inputs, on an NVIDIA RTX 3090 in BF16 wit
 attention, using the \Cref{tab:main} $k=4$ layer set, for both Qwen2.5-1.5B and
 Qwen2.5-7B. On 7B at sequence length 512 the \mname-over-plain-skip \emph{prefill} overhead is
 \phm{4.9}\,ms against interquartile ranges of \phm{1.19} and \phm{0.57}\,ms, so it is
-resolvable; at 2048 the overhead is \phm{1.0}\,ms against interquartile ranges of
+resolvable; at 2048 the \emph{prefill} overhead is \phm{1.0}\,ms against interquartile ranges of
 \phm{4.08} and \phm{4.16}\,ms, so at that length it is \emph{not} distinguishable from
 measurement noise and we do not claim it is. Either way the overhead is well under one
 percent, and the block-compute saving that motivates skipping is preserved. We make no
@@ -142,6 +142,18 @@ about \phm{0.8} false positives by chance, so the uncorrected borderline case
 We apply the test symmetrically. A delta inside the noise band is discounted whichever way
 it points, so we neither credit \mname with the $+18.5\%$ that five answers produce at
 $k=2$ on 1.5B, nor charge it with the $-6\%$ that four answers produce at $k=4$.
+
+\subsection{The two selection rules are the dissociation}
+\label{sec:app-tworules}
+
+So the two selection rules \emph{are} the dissociation. The rule that maximises measured
+recovery earns \mname's largest likelihood recovery anywhere (\phm{70.0}\% at $k=2$ on
+1.5B, at an absolute loss of \phm{3.43} against a dense \phm{2.33}) and its only
+significant accuracy gains --- on models whose absolute quality is unacceptable. The rule
+that keeps quality acceptable earns a real likelihood recovery (\phm{23.3}\% at $k=4$ on
+7B) and no significant accuracy effect at all. Recovery and functional repair agree only once the
+model is already ruined enough for there to be something obvious to repair. The
+depth-wise anti-correlation underlying this is quantified in \Cref{sec:app-anticorr}.
 
 \subsection{Layer selection}
 \label{sec:app-selection}

@@ -82,13 +82,12 @@ P_\ell = 1 -
      {\sum \|\dd_\ell\|_2^2},
 \label{eq:pscore}
 \end{equation}
-which is computable from the dense model on unlabeled text before any skipping
-decision is taken, and which is an obvious candidate for ranking layers. We
-evaluate it as such, alongside two selection rules that instead measure the effect
-of skipping directly on a small development set: ranking by lowest single-layer
-NLL damage, and ranking by the damage a predictor actually repairs. \Cref{sec:experiments}
-shows the choice between them matters more than the choice of predictor --- and
-that the cheap one is the wrong one.
+computable from the dense model on unlabeled text before any skipping decision is taken,
+and an obvious candidate for ranking layers. We evaluate it against two rules that instead
+measure the effect of skipping directly on a development set --- lowest single-layer NLL
+damage, and the damage a predictor actually repairs (\Cref{sec:app-selection}).
+\Cref{sec:experiments} shows the choice between them matters more than the choice of
+predictor, and that the cheap one is the wrong one.
 
 \paragraph{Cost.} \mname stores a $d$-dimensional coefficient vector per skipped
 block ($d = \phm{896}$ on Qwen2.5-0.5B), against the $d^2$ parameters a dense
