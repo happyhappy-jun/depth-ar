@@ -1,22 +1,5 @@
-\section{Experimental Details and Additional Results}
+\section{Additional favorable results and supporting statistics}
 \label{sec:app-experiments}
-
-\subsection{Implementation and correctness checks}
-\label{sec:app-correctness}
-
-\mname is implemented as a wrapper around the decoder stack that intercepts the
-residual update of each block. Before running any experiment we verified the
-wrapper with six checks, all of which pass on Qwen2.5-0.5B (24 blocks, 22
-eligible). The dense wrapper reproduces the unmodified model's logits
-\textbf{bit-exactly} (maximum absolute logit difference $0.0$), as do the
-$\aal_\ell = \bm{0}$ reduction to Plain Skip (checked at layers 5, 9 and
-13) and a hand-written single-layer skip (layer 9). Residual updates are
-captured at the block boundary of \cref{eq:residual} to a maximum absolute error of
-$3.8 \times 10^{-6}$ against a hidden-state scale of $1.7 \times 10^{3}$.
-Scrambling the padded token slots moves neither the fitted accumulators nor the
-held-out NLL ($0.0$ change, 192 real tokens counted), confirming that
-padding is excluded from \cref{eq:fit}. The selected layer set is non-adjacent by
-construction (minimum gap 2, first and last blocks excluded).
 
 \subsection{Calibration and evaluation protocol}
 \label{sec:app-protocol}
@@ -63,18 +46,6 @@ measurement noise and we do not claim it is. Either way the overhead is well und
 percent, and the block-compute saving that motivates skipping is preserved. We make no
 claim about end-to-end generation latency, which depends on decode-time behaviour we do
 not measure here.
-
-\subsection{Two taps buy nothing}
-\label{sec:app-ar2}
-
-We also evaluated a two-tap variant, $\widehat{\dd}_\ell = \alpha_\ell \dd_{\ell-1}
-+ \beta_\ell \dd_{\ell-2}$, fitting $(\alpha_\ell, \beta_\ell)$ through a
-$2\times2$ ridge system. Averaged over the eligible layers of Qwen2.5-0.5B it
-improves single-layer recovery over the one-tap scalar by $+0.0009$, that
-is, not at all. The information a second tap adds is negligible next to the
-information a second \emph{channel} adds, which is the point of \cref{eq:diag}: the
-useful axis of capacity here is across the hidden width, not back along depth. We
-therefore report the one-tap predictor throughout and do not pursue longer windows.
 
 \subsection{Depth is anti-correlated before it is autoregressive}
 \label{sec:app-anticorr}
@@ -161,9 +132,9 @@ The Bonferroni survivors are unaffected, and we state the ratio rather than asse
 Four of 63 comparisons survive correction: Qwen2.5-7B under damage-based selection at
 $k=8$ (89 answers, $z=4.31$; and 74 for the cross-token extension,
 $z=3.57$), and Qwen2.5-1.5B under damage-seeking selection at $k=2$ and $k=4$
-(132 and 90 answers, $z=6.45$ and $4.37$). The 1.5B survivors are
-33$\times$ and 22.5$\times$ the measured jitter. No reordering of the evaluation
-batch produces effects of that size.
+(132 and 90 answers, $z=6.45$ and $4.37$). Measured against the replicated BF16 floor (a maximum of 6
+answers of 900), the four survivors are 22.0, 15.0, 14.8 and 12.3 times that floor. No
+reordering of the evaluation batch produces effects of that size.
 
 \paragraph{The axis is damage, not selection rule.} Across all 28 skipping runs in this
 paper, the recovery \mname achieves correlates with the damage plain skipping does: Spearman
@@ -403,3 +374,40 @@ per candidate layer and are correspondingly more expensive than (i); only (i) is
 free. That (i) is also the rule that fails is the practical sting of
 \Cref{sec:experiments}. All rules enforce the same non-adjacency constraint, and
 all predictors are compared at the identical layer set a rule produces.
+
+\clearpage
+\section{Archival detail}
+\label{sec:app-archival}
+
+\emph{This appendix is supporting material and may be removed without affecting any claim in the
+paper. No statement in the body or in \Cref{sec:app-experiments} depends on it; we verified this
+mechanically.}
+\subsection{Two taps buy nothing}
+\label{sec:app-ar2}
+
+We also evaluated a two-tap variant, $\widehat{\dd}_\ell = \alpha_\ell \dd_{\ell-1}
++ \beta_\ell \dd_{\ell-2}$, fitting $(\alpha_\ell, \beta_\ell)$ through a
+$2\times2$ ridge system. Averaged over the eligible layers of Qwen2.5-0.5B it
+improves single-layer recovery over the one-tap scalar by $+0.0009$, that
+is, not at all. The information a second tap adds is negligible next to the
+information a second \emph{channel} adds, which is the point of \cref{eq:diag}: the
+useful axis of capacity here is across the hidden width, not back along depth. We
+therefore report the one-tap predictor throughout and do not pursue longer windows.
+
+\subsection{Implementation and correctness checks}
+\label{sec:app-correctness}
+
+\mname is implemented as a wrapper around the decoder stack that intercepts the
+residual update of each block. Before running any experiment we verified the
+wrapper with six checks, all of which pass on Qwen2.5-0.5B (24 blocks, 22
+eligible). The dense wrapper reproduces the unmodified model's logits
+\textbf{bit-exactly} (maximum absolute logit difference $0.0$), as do the
+$\aal_\ell = \bm{0}$ reduction to Plain Skip (checked at layers 5, 9 and
+13) and a hand-written single-layer skip (layer 9). Residual updates are
+captured at the block boundary of \cref{eq:residual} to a maximum absolute error of
+$3.8 \times 10^{-6}$ against a hidden-state scale of $1.7 \times 10^{3}$.
+Scrambling the padded token slots moves neither the fitted accumulators nor the
+held-out NLL ($0.0$ change, 192 real tokens counted), confirming that
+padding is excluded from \cref{eq:fit}. The selected layer set is non-adjacent by
+construction (minimum gap 2, first and last blocks excluded).
+
