@@ -11,7 +11,7 @@ terms in the inference bill \citep{zhen2025taming}.
 Layer skipping is an attractive response. Removing an entire block eliminates
 real computation --- its attention and MLP matmuls both disappear --- without
 changing the hidden width, the attention pattern, or the KV-cache layout, so it
-composes with the rest of the inference stack for free. A substantial literature
+composes with the rest of the inference stack without further cost. A substantial literature
 establishes that Transformers tolerate this surprisingly well: blocks in large
 models are highly redundant, and a well-chosen subset can be deleted with modest
 degradation \citep{men2024shortgpt, gromov2024unreasonable, fan2020reducing}.
@@ -46,8 +46,8 @@ plain skipping is precisely the estimator $\widehat{\dd}_\ell = 0$ --- a
 zero-order predictor that ignores every update the model has already computed. We
 instead treat $\dd_{\ell-1}, \dd_{\ell-2}, \dots$ as a short series indexed by
 depth and fit an autoregressive model that forecasts $\dd_\ell$ from it, using
-information already sitting in the residual stream at inference time, free of
-charge.
+information already sitting in the residual stream at inference time and adding
+\phm{0.64}\% to prefill latency.
 
 The answer is more interesting than a clean yes. Depth is \emph{not} the smooth
 trajectory the analogy suggests: through the middle of Qwen2.5-0.5B consecutive
@@ -81,13 +81,15 @@ and more when layers are selected to maximise it. Downstream accuracy does not f
 \emph{no statistically significant accuracy gain at any of the three scales}: the largest
 delta we measure is $+\phm{22}$ correct answers out of \phm{900} on 7B, at
 $z=\phm{1.18}$. The only significant gains anywhere --- $+\phm{132}$ and $+\phm{90}$ of
-\phm{900} at $z=\phm{6.45}$ and $\phm{4.37}$, the only two of \phm{16} comparisons to
-survive Bonferroni correction --- arise where layers are chosen to maximise recovery, and
+\phm{900} on 1.5B, at $z=\phm{6.45}$ and $\phm{4.37}$, the only two of \phm{16}
+comparisons to survive Bonferroni correction --- arise where layers are chosen to
+maximise recovery, and
 there plain skipping has already driven loss to \phm{5.99}--\phm{7.31} against a dense
 \phm{2.33}. The behavioural benefit is real precisely where the model is already ruined.
 We report absolute counts rather than recovered-gap fractions throughout, because the
-fractions divide by Dense-minus-Plain-Skip denominators as small as \phm{27} answers:
-five answers become ``$18.5\%$ of the accuracy gap recovered'', a figure that would sit
-comfortably in an abstract and means nothing.
+fractions divide by Dense-minus-Plain-Skip denominators as small as \phm{27} answers ---
+five answers in a \phm{27}-answer gap, with one of the three tasks exactly tied. Stated
+as a fraction, that becomes a two-digit percentage that would sit comfortably in an
+abstract and means nothing.
 
 

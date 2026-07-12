@@ -28,8 +28,8 @@ the unique estimator that uses no information at all. That is what makes it chea
 and it is also what makes it wasteful: by the time the model reaches layer $\ell$
 it has already computed $\dd_{\ell-1}, \dd_{\ell-2}, \dots$, all of which sit in
 the residual stream and all of which \cref{eq:plainskip} discards. A second, equally
-free estimator is available --- reuse the previous update, $\widehat{\dd}_\ell =
-\dd_{\ell-1}$ --- and we carry this \textbf{Copy Update} baseline throughout,
+fitting-free estimator is available --- reuse the previous update,
+$\widehat{\dd}_\ell = \dd_{\ell-1}$ --- and we carry this \textbf{Copy Update} baseline throughout,
 because any gain \mname shows over it is a gain from \emph{fitting}, not merely
 from being nonzero.
 

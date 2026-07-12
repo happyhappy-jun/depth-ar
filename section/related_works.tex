@@ -34,4 +34,5 @@ skipped block need not be a hole in the computation.
 
 To our knowledge, \mname is the first layer-skipping method to model the missing
 residual update autoregressively from the preceding depth trajectory using a
-closed-form, scalar predictor.
+closed-form, per-channel (diagonal) predictor --- and, in the same breath, the first to
+show that doing so recovers likelihood without recovering function.

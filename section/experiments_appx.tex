@@ -21,18 +21,30 @@ construction (minimum gap \phm{2}, first and last blocks excluded).
 \subsection{Calibration and evaluation protocol}
 \label{sec:app-protocol}
 
-Coefficients are fitted on unlabeled WikiText-103 text \citep{merity2017pointer},
-and $P_\ell$ is scored on a disjoint held-out split of the same size. The 0.5B
-analysis uses \phm{16} calibration and 16 held-out sequences of length \phm{512},
-and reports NLL on held-out WikiText-103; it runs in FP32 on an NVIDIA TITAN X
-(Pascal) GPU. The 1.5B and \topscale runs use \phm{32} sequences of length
-\phm{1024}, report NLL on the WikiText-2 test split, and run in BF16 on a single
-NVIDIA RTX 3090 GPU. Statistics are accumulated in FP64 (\cref{eq:fit}) so that no
-hidden states need to be stored. Task evaluation uses \phm{300} examples per task
-with fixed example IDs and seed 42 throughout. No configuration uses
-FlashAttention, so we use the reference attention implementation everywhere.
-Absolute latencies are specific to this hardware, even though the relative
-comparison between methods is not.
+Coefficients are always fitted on unlabeled WikiText-103 \citep{merity2017pointer}, and
+never on task data. Evaluation protocols differ by run, and we state them separately
+rather than as one global constant.
+
+\paragraph{0.5B layer analysis and \Cref{tab:selection}.} Coefficients are fitted on
+\phm{16} WikiText-103 sequences of length \phm{512}; $P_\ell$ and the NLL-recovery
+fractions are scored on \phm{16} \emph{disjoint held-out WikiText-103} sequences. This is
+a development protocol: it is the split on which layers are selected and the ridge is
+chosen, and no number reported from it is a test-set number.
+
+\paragraph{0.5B composition (\Cref{tab:main}).} Coefficients are fitted on the same
+\phm{16} WikiText-103 sequences, but NLL is reported on the \emph{WikiText-2 test} split
+(\phm{32} sequences), and downstream accuracy on \phm{100} examples per task.
+
+\paragraph{1.5B and \topscale.} Coefficients are fitted on \phm{32} WikiText-103
+sequences of length \phm{1024}; NLL is reported on the WikiText-2 test split and accuracy
+on \phm{300} examples per task.
+
+Task evaluation uses fixed example IDs and seed 42 throughout. Statistics for
+\cref{eq:fit} are accumulated in FP64, so no hidden states need to be stored. The 0.5B
+runs use FP32 on an NVIDIA TITAN X (Pascal) GPU; 1.5B and \topscale use BF16 on a single
+NVIDIA RTX 3090. No configuration uses FlashAttention, so we use the reference attention
+implementation everywhere. Absolute latencies are specific to this hardware, though the
+relative comparison between methods is not.
 
 \subsection{Latency measurement}
 \label{sec:app-latency}
@@ -43,7 +55,7 @@ with \phm{10} warm-up iterations followed by \phm{30} measured iterations, and
 \texttt{torch.cuda.synchronize()} around each timed region. We report the median
 and interquartile range over synthetic inputs, on an NVIDIA RTX 3090 in BF16 with eager
 attention, using the \Cref{tab:main} $k=4$ layer set, for both Qwen2.5-1.5B and
-Qwen2.5-7B. On 7B at sequence length 512 the \mname-over-plain-skip overhead is
+Qwen2.5-7B. On 7B at sequence length 512 the \mname-over-plain-skip \emph{prefill} overhead is
 \phm{4.9}\,ms against interquartile ranges of \phm{1.19} and \phm{0.57}\,ms, so it is
 resolvable; at 2048 the overhead is \phm{1.0}\,ms against interquartile ranges of
 \phm{4.08} and \phm{4.16}\,ms, so at that length it is \emph{not} distinguishable from
@@ -88,8 +100,9 @@ the ridge is a \emph{stability} guard, not a source of gains: across the tested
 range it moves mean recovery by a few percent, and we make no claim that tuning it
 matters. Second, it does not rescue layer 2, whose recovery stays deeply negative
 at every strength tested (\phm{$-3.68$} at $\epsilon=0.01$, still \phm{$-2.42$} at
-$\epsilon=10$); the pathology there lives in \emph{high}-energy channels, which a
-ridge scaled to the layer's own energy cannot suppress. Layer 2 is never selected
+$\epsilon=10$). This is consistent with the pathology living in \emph{high}-energy
+channels, which a ridge scaled to the layer's own energy would not suppress, but we did
+not test that directly and do not assert it. Layer 2 is never selected
 by the recovery-based rule, so this does not affect any reported result --- but it
 is a second instance of the paper's central theme, and we would rather report it
 than let it go unmentioned.
