@@ -8,6 +8,7 @@ with a per-channel predictor, since a single coefficient per layer is at some
 layers worse than dropping the update outright. The recovery stops at the loss.
 Downstream accuracy does not follow it, at either scale we tested. Predictability,
 energy-weighted fit criteria, and language-modelling loss recovery are all cheaper
-proxies for functional preservation, and all three overestimate it. We think that
-is the more useful finding, and the one a method built on any of those proxies has
-to answer.
+proxies for functional preservation, and all three overestimate it. The gap is not a
+cost trade-off: \mname adds \phm{0.23}\% prefill latency over plain skipping, so
+nothing was given up to buy the likelihood it recovers. We think that is the more
+useful finding, and the one a method built on any of those proxies has to answer.
