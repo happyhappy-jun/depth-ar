@@ -49,16 +49,12 @@ depth and fit an autoregressive model that forecasts $\dd_\ell$ from it, using
 information already sitting in the residual stream at inference time, free of
 charge.
 
-The answer to the question is more interesting than a clean yes. Depth is
-\emph{not} the smooth forward trajectory the analogy suggests. Through the middle
-of Qwen2.5-0.5B, consecutive residual updates are mildly \emph{anti}-correlated:
-every fitted coefficient is negative across layers 4--16, and \phm{88}\% of the
-individual channels agree on that sign, so successive blocks there partially undo
-one another rather than continuing a path. Genuine depth-wise momentum exists, but
-it is confined to the final quarter of the stack. And the property that looks like
-the natural way to decide \emph{where} to skip --- how well a layer's update can be
-forecast --- turns out to be almost useless for that purpose: predictability and
-recoverability are statistically unrelated (\Cref{sec:experiments}).
+The answer is more interesting than a clean yes. Depth is \emph{not} the smooth
+trajectory the analogy suggests: through the middle of Qwen2.5-0.5B consecutive
+updates are mildly \emph{anti}-correlated, with every fitted coefficient negative
+across layers 4--16 and \phm{88}\% of individual channels agreeing on that sign, so
+successive blocks there partly undo one another. Momentum exists, but only in the
+final quarter of the stack.
 
 We introduce \textbf{\mname (Depth-wise AutoRegressive update prediction)}, which
 replaces the zero-update assumption with a closed-form per-channel forecast of the
@@ -81,17 +77,20 @@ Layer selection must be validated against recovery, which must be measured. (3)
 \textbf{Likelihood recovery does not transfer to behaviour.} \mname recovers a
 real fraction of the language-modelling damage that skipping causes at every scale
 and budget we test --- \phm{10.3}\% at the deployable operating point of
-Qwen2.5-1.5B, and more when layers are selected to maximise it. Downstream
-accuracy does not follow. At four skipped blocks, at the same operating point, the
-accuracy gap is not closed but slightly widened: \phm{$-21.1$}\% on Qwen2.5-0.5B
-and \phm{$-6.0$}\% on Qwen2.5-1.5B, against positive likelihood recovery in both
-cases. We therefore make no claim that \mname improves downstream quality, and we
-report the one budget at which it does (\phm{18.5}\% at $k=2$ on 1.5B) as the
-exception it is.
+Qwen2.5-1.5B, and more when layers are selected to maximise it. Downstream accuracy
+follows it only where the model is already ruined. Choosing layers to maximise
+recovery does produce a large, unambiguous accuracy gain --- \phm{132} additional
+correct answers out of \phm{900} on 1.5B --- but it does so on a layer set at which
+plain skipping has driven language-modelling loss to \phm{5.99} against a dense
+\phm{2.33}. At the operating point one would deploy, \mname's effect on accuracy is
+\emph{undetectable}: across both scales and all budgets, every delta lies within
+one binomial standard error of zero, ranging from \phm{$-6$} to $+\phm{5}$ answers,
+with several tasks exactly tied. We state these as counts, not as recovered-gap
+fractions, because the fractions divide by Dense-minus-Plain-Skip denominators as
+small as \phm{27} answers: five answers become ``$18.5\%$ of the accuracy gap
+recovered'', a figure that would sit comfortably in an abstract and means nothing.
+We therefore claim no downstream improvement at the deployable operating point ---
+and, symmetrically, no downstream harm. At these sample sizes there is nothing to
+claim in either direction, and that is itself the result.
 
-The three findings are one finding. Predictability is an energy-weighted geometric
-score, and it does not predict repair. The ridge coefficient chosen by that same
-geometric criterion leaves the model catastrophically worse. And the likelihood
-recovery \mname does achieve does not reach the behaviour anyone actually deploys
-a model for. Each is a cheaper proxy standing in for functional preservation, and
-each overestimates it.
+

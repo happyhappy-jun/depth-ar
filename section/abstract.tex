@@ -12,10 +12,16 @@ more when layers are chosen to maximise it. Getting even this required discardin
 the obvious version of the idea: a single global coefficient per layer fails, and
 at some layers is worse than dropping the update outright; only a $d$-dimensional
 coefficient vector works. But the recovery does not reach the model's
-\emph{behaviour}. At the same operating point, downstream accuracy is not
-recovered but slightly degraded --- at four skipped blocks, \phm{$-21.1$}\% of the
-accuracy gap on Qwen2.5-0.5B and \phm{$-6.0$}\% on Qwen2.5-1.5B, against
-\emph{positive} likelihood recovery in both cases. The same dissociation appears
+\emph{behaviour}. \mname's benefit to behaviour is real, but it appears only where plain skipping has
+already destroyed the model: selecting layers to maximise recovery buys \phm{132}
+additional correct answers out of \phm{900} on Qwen2.5-1.5B --- at a
+language-modelling loss of \phm{5.99} against a dense \phm{2.33}, a model nobody
+would deploy. At the operating point one would actually deploy, the effect on
+accuracy is undetectable at our sample sizes: every delta, in either direction,
+falls within one binomial standard error (\phm{$-6$} to $+\phm{5}$ answers), and
+several tasks are exactly tied. We claim neither improvement nor harm there; we
+claim that a large and consistent likelihood recovery buys neither. The same
+dissociation appears
 three times over: held-out predictability is uncorrelated with the damage
 prediction repairs (Spearman \phm{$-0.015$}), an energy-weighted fit criterion
 selects a ridge that leaves development loss at \phm{11.01} against a dense

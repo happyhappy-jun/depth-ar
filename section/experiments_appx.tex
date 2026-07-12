@@ -90,6 +90,36 @@ by the recovery-based rule, so this does not affect any reported result --- but 
 is a second instance of the paper's central theme, and we would rather report it
 than let it go unmentioned.
 
+\subsection{Predictability across depth}
+\input{figures/fig1a_appendix}
+
+The depth profile behind \Cref{fig:momentum} is shown in \Cref{fig:momentum-profile}.
+
+\subsection{Full downstream results}
+\label{sec:app-downstream}
+
+\input{tables/main_table}
+
+The per-task numbers behind \Cref{fig:dissociation} are given in \Cref{tab:main}.
+
+\subsection{Accuracy deltas, sampling noise, and ratio inflation}
+\label{sec:app-noise}
+
+Recovered-gap \emph{fractions} on accuracy are computed against a
+Dense-minus-Plain-Skip denominator that is only tens of graded answers wide, and are
+correspondingly unstable. We therefore audited every accuracy cell against the standard
+error of a difference of two proportions, and report absolute counts in the body. Of the
+\phm{12} \mname accuracy cells, \phm{8} fall within one standard error of zero. All
+\phm{6} cells under damage-based selection --- the deployable rule, at both scales and
+every budget --- are within noise, ranging from \phm{$-6$} to $+\phm{5}$ net answers,
+with several tasks exactly tied. The cells that are \emph{not} within noise are all
+under recovery-maximising selection at small $k$, where the accuracy gain is large and
+real (\phm{132} and \phm{90} net answers of \phm{900} on 1.5B) but the underlying model
+has already been destroyed by skipping. We apply this test symmetrically: a delta inside
+the noise band is discounted whichever direction it points, so we neither credit \mname
+with the $+18.5\%$ that five answers produce nor charge it with the $-6\%$ that four
+answers produce.
+
 \subsection{Layer selection}
 \label{sec:app-selection}
 
