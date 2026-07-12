@@ -16,36 +16,34 @@ every predictor skips the \emph{identical} blocks, isolating the predictor from 
 selection rule. Full protocol, hardware and precisions in \Cref{sec:app-protocol}.
 
 \paragraph{A single coefficient per layer is not enough.} \Cref{tab:selection} reports the
-fraction of plain-skip NLL damage each predictor recovers, under three different rules for
-choosing which blocks to skip. The scalar predictor of \cref{eq:ar1} is not a mildly
-weaker \mname: under the cheap selection rule it is \emph{worse} than plain skipping,
-recovering \phm{$-0.745$} of the damage at $k=2$, roughly doubling it. One coefficient per
-channel, with nothing else changed, turns that into \phm{$+0.053$}. \mname recovers more
-damage than every alternative under \emph{every} selection rule and both budgets, so it
-can be applied on top of whichever layer-selection method a practitioner already prefers.
-Copy Update is worse than plain skipping everywhere, so the benefit comes from
+fraction of plain-skip NLL damage each predictor recovers under three rules for choosing
+which blocks to skip. The scalar predictor of \cref{eq:ar1} is not a mildly weaker \mname:
+under the cheap rule it is \emph{worse} than plain skipping, recovering \phm{$-0.745$} of
+the damage at $k=2$. One coefficient per channel, nothing else changed, turns that into
+\phm{$+0.053$}. \mname recovers more damage than every alternative under \emph{every} rule
+and both budgets, so it composes with whichever selection method a practitioner already
+uses. Copy Update is worse than plain skipping everywhere, so the benefit comes from
 \emph{fitting} the coefficients, not from injecting a nonzero update.
 
-\paragraph{Likelihood recovery grows with scale.} \Cref{tab:main} carries the comparison
+\paragraph{At a matched budget, likelihood recovery grows with scale.} \Cref{tab:main} carries the comparison
 to downstream tasks. At the conservative, damage-based operating point, \mname recovers
 \phm{4.6}\% of the plain-skip language-modelling damage on 0.5B, \phm{10.3}\% on 1.5B and
 \phm{23.3}\% on 7B at $k=4$, the largest damage we repair anywhere in absolute terms
-(\phm{0.4034} nats). The scalar predictor recovers consistently less, and Copy Update is
+(\phm{0.4034} nats). The trend is specific to that budget: at $k=2$ recovery is flat to
+mildly declining with scale (\phm{8.4}\%, \phm{8.2}\%, \phm{7.3}\%), so we claim no
+general scaling law. The scalar predictor recovers consistently less, and Copy Update is
 worse than not predicting at all.
 
-\paragraph{Under aggressive pruning, likelihood recovery becomes behaviour.} The regime
-where the skip operator matters most is the one where plain skipping breaks the model.
-Selecting layers to maximise recovery on Qwen2.5-1.5B drives plain-skip loss to
-\phm{5.99} at $k=2$ and \phm{7.31} at $k=4$, against a dense \phm{2.33}, and collapses
-downstream accuracy. At those same layer sets \mname recovers \phm{70.0}\% and
-\phm{66.3}\% of the likelihood, and answers \phm{132} and \phm{90} more questions
-correctly out of \phm{900} than plain skipping does ($z=\phm{6.45}$ and $\phm{4.37}$).
-These are the only \phm{2} of \phm{16} accuracy comparisons in this work that survive
-Bonferroni correction. We state the context plainly: these are gains over a badly damaged
-baseline, and the resulting models remain well below dense quality. But they hold at a
-matched skipping fraction, which makes them the right comparison for anyone who must
-compress aggressively: the choice of skip operator is worth a large and statistically
-reliable number of answers exactly when compression is most severe.
+\paragraph{Under aggressive pruning, likelihood recovery becomes behaviour.} The skip
+operator matters most where plain skipping breaks the model. Selecting layers to maximise
+recovery on Qwen2.5-1.5B drives plain-skip loss to \phm{5.99} at $k=2$ and \phm{7.31} at
+$k=4$ against a dense \phm{2.33}, collapsing downstream accuracy. At those same layer sets
+\mname recovers \phm{70.0}\% and \phm{66.3}\% of the likelihood and answers \phm{132} and
+\phm{90} more questions correctly out of \phm{900} than plain skipping ($z=\phm{6.45}$,
+$\phm{4.37}$), the only \phm{2} of \phm{16} accuracy comparisons here that survive
+Bonferroni correction. The context matters: these are gains over a badly damaged baseline,
+and the pruned models remain well below dense quality. But they hold at a matched skipping
+fraction, which makes them the right comparison for anyone who must compress hard.
 
 \paragraph{Predictability does not imply recoverability.} Across the 22 eligible layers of
 Qwen2.5-0.5B, held-out predictability $P_\ell$ and the damage a predictor actually repairs

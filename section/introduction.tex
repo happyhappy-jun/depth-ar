@@ -54,8 +54,8 @@ training, and we report three results.
 predictor exploits that.} \mname recovers \phm{4.6}\% to \phm{23.3}\% of the
 language-modelling damage that skipping causes at conservative budgets, across Qwen2.5-0.5B,
 1.5B and 7B, and up to \phm{70.0}\% when layers are chosen to maximise recovery. The
-recovery grows with scale, and it costs a $d$-dimensional coefficient vector per skipped
-block and $O(Td)$ work. Getting it required discarding the obvious version of the idea: a
+recovery grows with scale at four skipped blocks, and it costs a $d$-dimensional
+coefficient vector per skipped block and $O(Td)$ work. Getting it required discarding the obvious version of the idea: a
 single global coefficient per layer fails almost everywhere, and at layer 3 of
 Qwen2.5-0.5B substituting its prediction is \emph{worse} than dropping the update
 outright. One coefficient per channel, with nothing else relaxed, is what separates a
@@ -74,12 +74,7 @@ measurable number of answers.
 \textbf{(3) Predictability is not recoverability.} Held-out explained update energy
 $P_\ell$, the cheap signal this method appears to hand you for free, is uncorrelated with
 the damage a predictor actually repairs (Spearman \phm{$-0.015$}, $p=\phm{0.95}$,
-$n=\phm{22}$). Layers must be selected against measured recovery, not against
-predictability, and the same blindness recurs when an energy-weighted criterion is used to
-tune the predictor itself.
-
-At conservative budgets, where plain skipping already preserves most of the model, the
-likelihood \mname recovers does not yet register as a downstream accuracy gain: the
-differences there are within sampling noise in either direction at all three scales. We
-report that plainly in \Cref{sec:limitations}, and regard turning conservative-budget
-likelihood recovery into conservative-budget accuracy as the natural next step.
+$n=\phm{22}$), so layers must be selected against measured recovery. At conservative
+budgets the recovered likelihood does not yet register as a downstream accuracy gain; we
+report that plainly in \Cref{sec:limitations} and regard closing it as the natural next
+step.
