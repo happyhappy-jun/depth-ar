@@ -158,6 +158,45 @@ that keeps quality acceptable earns a real likelihood recovery (\phm{23.3}\% at 
 model is already ruined enough for there to be something obvious to repair. The
 depth-wise anti-correlation underlying this is quantified in \Cref{sec:app-anticorr}.
 
+\subsection{Why the per-channel predictor wins is not settled}
+At layer 3 the fitted scalar is \phm{$+1.10$} while the median channel coefficient is
+\phm{$-0.20$} and \phm{76}\% of channels are negative, so the scalar moves three quarters of
+the channels the wrong way. That cannot be the whole story, since \mname also beats the
+scalar at layers whose channels agree in sign.
+
+\subsection{Cross-token prediction: depth is not the only cheap signal}
+\label{sec:app-crosstoken}
+
+\Cref{eq:diag} predicts a skipped block's update from the previous layer's update at the
+\emph{same} token position. Nothing forces that choice. Giving each channel a second
+coefficient on the preceding layer's update at the preceding \emph{token},
+\begin{equation}
+\widehat{\dd}_\ell(t) = \aal_\ell \odot \dd_{\ell-1}(t) + \bb_\ell \odot \dd_{\ell-1}(t-1),
+\label{eq:crosstoken}
+\end{equation}
+costs \phm{1792} scalars per skipped block on Qwen2.5-0.5B. This is \emph{twice the
+coefficient storage of \mname proper, and still $O(Td)$ compute}: the shifted tensor is
+already resident in the residual stream, so no extra matmul is introduced. We keep the two
+separate throughout, and every claim about \mname elsewhere in this paper refers to the
+$d$-parameter predictor of \cref{eq:diag}. Setting $\bb_\ell = \bm{0}$ reduces
+\cref{eq:crosstoken} to \cref{eq:diag} exactly, which we verify numerically (\phm{0.0}
+absolute NLL difference).
+
+On a single-layer scan over the \phm{22} eligible layers of Qwen2.5-0.5B, cross-token
+prediction lowers mean held-out NLL from \phm{3.40} to \phm{3.08} against a dense
+\phm{2.76}, and beats the depth-only predictor at \phm{19} of the \phm{22} layers, raising
+median single-layer recovery by \phm{1.8}$\times$.
+
+The most informative case is the one no ridge could fix. Layer 2 is where the per-channel
+predictor is at its most destructive, and regularisation does not rescue it: across four
+orders of magnitude of ridge strength its recovery never rises above \phm{$-2.42$}
+(\Cref{sec:app-ridge}), and it sits at \phm{$-3.31$} at the fitted value. Admitting the
+previous token's update turns that same layer from \phm{$-3.31$} to \phm{$+0.19$}. The
+failure was missing information, not mis-regularisation.
+
+We report this as preliminary. It is a single-layer scan at one scale; we have not composed
+it across multiple skipped blocks, and it supports no claim made elsewhere in this paper.
+
 \subsection{Layer selection}
 \label{sec:app-selection}
 

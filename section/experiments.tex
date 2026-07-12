@@ -29,9 +29,9 @@ uses. Copy Update is worse than plain skipping everywhere, so the benefit comes 
 to downstream tasks. At the conservative, damage-based operating point, \mname recovers
 \phm{4.6}\% of the plain-skip language-modelling damage on 0.5B, \phm{10.3}\% on 1.5B and
 \phm{23.3}\% on 7B at $k=4$, the largest damage we repair anywhere in absolute terms
-(\phm{0.4034} nats). The trend is specific to that budget: at $k=2$ recovery is flat to
-mildly declining with scale (\phm{8.4}\%, \phm{8.2}\%, \phm{7.3}\%), so we claim no
-general scaling law. The scalar predictor recovers consistently less, and Copy Update is
+(\phm{0.4034} nats). The trend is budget-specific: at $k=2$ recovery is flat to mildly
+declining with scale (\phm{8.4}\%, \phm{8.2}\%, \phm{7.3}\%), so we claim no general
+scaling law. The scalar predictor recovers consistently less, and Copy Update is
 worse than not predicting at all.
 
 \paragraph{Under aggressive pruning, likelihood recovery becomes behaviour.} The skip
@@ -56,8 +56,7 @@ down: selecting the ridge of \cref{eq:fit} by $P_\ell$ leaves development NLL at
 \phm{11.01} against a dense \phm{2.73} (\Cref{sec:app-ridge}).
 
 \paragraph{The forecast is cheap.} On Qwen2.5-7B at four skipped blocks, \mname adds
-\phm{0.64}\% \emph{prefill} latency over plain skipping at sequence length 512
-(\phm{0.03}\% at 2048, below the measurement's interquartile range), retaining a
+\phm{0.64}\% \emph{prefill} latency over plain skipping at sequence length 512, retaining a
 \phm{1.141}$\times$ prefill speedup over the dense model where plain skipping reaches
 \phm{1.148}$\times$ (\Cref{sec:app-latency}). We measure prefill only and make no claim
 about end-to-end generation.
@@ -71,6 +70,8 @@ difference at the damage-based operating point is significant at any of the thre
 bar of $1.96$; \Cref{sec:app-noise}). We claim no downstream improvement there, and
 symmetrically no harm. Translating conservative-budget likelihood recovery into accuracy is
 the natural next step. We also leave open \emph{why} the per-channel predictor succeeds
-where the scalar fails: at layer 3 the fitted scalar is \phm{$+1.10$} while \phm{76}\% of
-channels are negative, but that cannot be the whole story, since \mname also beats the
-scalar where channels agree in sign.
+where the scalar fails (\Cref{sec:app-experiments}). One clue: admitting the previous
+\emph{token}'s update from the preceding layer turns layer 2, the one pathology no ridge
+could suppress, from a recovery of \phm{$-3.31$} into \phm{$+0.19$}, so that failure was
+missing information, not mis-regularisation. On a single-layer 0.5B scan this raises median
+recovery \phm{1.8}$\times$ (preliminary; \Cref{sec:app-crosstoken}).
