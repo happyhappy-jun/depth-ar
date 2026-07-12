@@ -194,8 +194,31 @@ orders of magnitude of ridge strength its recovery never rises above \phm{$-2.42
 previous token's update turns that same layer from \phm{$-3.31$} to \phm{$+0.19$}. The
 failure was missing information, not mis-regularisation.
 
-We report this as preliminary. It is a single-layer scan at one scale; we have not composed
-it across multiple skipped blocks, and it supports no claim made elsewhere in this paper.
+\paragraph{Composition: cross-token matches the depth-only predictor, and the reason is
+instructive.} At the deployable, damage-selected layer sets, cross-token prediction does not
+improve on \cref{eq:diag} in any way that matters. On Qwen2.5-0.5B it recovers \phm{4.8}\%
+of the plain-skip NLL damage at $k=4$ against \phm{4.6}\% for the depth-only predictor, and
+\phm{18.3}\% against \phm{18.0}\% at $k=6$; on Qwen2.5-1.5B, \phm{8.9}\% against \phm{8.2}\%
+at $k=2$ and \phm{10.8}\% against \phm{10.3}\% at $k=4$. Downstream accuracy is at noise
+level in both directions, so the dissociation this paper reports extends to the cross-token
+predictor as well.
+
+The reason is measurable rather than mysterious, and it is the same selection story told
+once more. Cross-token information rescues precisely the layers that damage-aware selection
+has already discarded: its three largest gains over \cref{eq:diag} are at layers \phm{2},
+\phm{21} and \phm{1}, while the deployable sets are $\{8,10,13,18\}$ and
+$\{10,12,14,16\}$. The two are disjoint. A selection rule that avoids catastrophic layers
+gets, for free, the layers on which the cheaper predictor was already adequate, so the extra
+information has nothing left to repair.
+
+What cross-token buys at the deployable sets is therefore not recovery but
+\emph{robustness}: its worst layer anywhere in the scan recovers \phm{$-0.027$}, against
+\phm{$-3.314$} for the depth-only predictor. It removes the failure mode rather than
+improving the typical case.
+
+We report all of this as preliminary at one scale for the single-layer scan, and we make no
+claim that cross-token prediction improves \mname at a deployable operating point. Its value
+in this paper is the mechanism: it identifies what the depth-only predictors were missing.
 
 \subsection{Layer selection}
 \label{sec:app-selection}
