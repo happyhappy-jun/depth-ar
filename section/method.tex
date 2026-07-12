@@ -71,7 +71,7 @@ further.
 streaming a small unlabeled calibration set through the dense model once and
 accumulating the sums in \cref{eq:fit} in FP64. No hidden states are stored, no
 gradients are taken, no labels are used, and recalibrating an entire model costs a
-single forward pass over 16--\ph{32} sequences. Padding tokens are excluded from
+single forward pass over 16--\phm{32} sequences. Padding tokens are excluded from
 the accumulators.
 
 \paragraph{Which layers to skip.} The natural companion to \cref{eq:fit} is the

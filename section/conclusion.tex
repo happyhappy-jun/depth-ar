@@ -1,12 +1,13 @@
 \section{Conclusion}
 \label{sec:conclusion}
 
-Plain layer skipping treats a missing residual update as zero; \mname treats it as
-predictable, and fits the prediction in closed form on unlabeled text. Two things
-had to be got right. The predictor must be per-channel --- a single coefficient per
-layer is, at some layers, worse than dropping the update outright. And the layers
-must be chosen by measured recovery, not by predictability: how well an update can
-be forecast tells you almost nothing about whether forecasting it helps. Depth
-carries momentum only in its last quarter; before that, blocks partially undo one
-another. Skipping discards computation the model has already forecast --- but
-forecasting it accurately and getting it back are not the same thing.
+Plain layer skipping treats a missing residual update as zero, and that assumption
+is genuinely wasteful: the update is partly predictable, and \mname recovers a real
+fraction of the likelihood it destroys, in closed form, at $O(Td)$ cost --- but only
+with a per-channel predictor, since a single coefficient per layer is at some
+layers worse than dropping the update outright. The recovery stops at the loss.
+Downstream accuracy does not follow it, at either scale we tested. Predictability,
+energy-weighted fit criteria, and language-modelling loss recovery are all cheaper
+proxies for functional preservation, and all three overestimate it. We think that
+is the more useful finding, and the one a method built on any of those proxies has
+to answer.

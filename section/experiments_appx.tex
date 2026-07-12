@@ -23,25 +23,30 @@ construction (minimum gap \phm{2}, first and last blocks excluded).
 
 Coefficients are fitted on unlabeled WikiText-103 text \citep{merity2017pointer},
 and $P_\ell$ is scored on a disjoint held-out split of the same size. The 0.5B
-analysis uses 16 calibration and 16 held-out sequences of length 512; the larger
-models use \ph{32} of each. Statistics are accumulated in FP64 (\cref{eq:fit}) so
-that no hidden states need to be stored. Task evaluation uses fixed example IDs
-with seed 42 throughout. Discovery and verification runs (0.5B, 1.5B) are executed
-in FP32 on an NVIDIA TITAN X (Pascal) GPU; the headline \topscale runs are executed
-in BF16 on a single NVIDIA RTX 3090 GPU. Neither configuration uses FlashAttention,
-so we use the reference attention implementation throughout. Absolute latencies are
-specific to this hardware, even though the relative comparison between methods is
-not.
+analysis uses \phm{16} calibration and 16 held-out sequences of length \phm{512},
+and reports NLL on held-out WikiText-103; it runs in FP32 on an NVIDIA TITAN X
+(Pascal) GPU. The 1.5B and \topscale runs use \phm{32} sequences of length
+\phm{1024}, report NLL on the WikiText-2 test split, and run in BF16 on a single
+NVIDIA RTX 3090 GPU. Statistics are accumulated in FP64 (\cref{eq:fit}) so that no
+hidden states need to be stored. Task evaluation uses \phm{300} examples per task
+with fixed example IDs and seed 42 throughout. No configuration uses
+FlashAttention, so we use the reference attention implementation everywhere.
+Absolute latencies are specific to this hardware, even though the relative
+comparison between methods is not.
 
 \subsection{Latency measurement}
 \label{sec:app-latency}
 
 We report \emph{prefill} latency only: a forward pass with
-\texttt{use\_cache=False}, batch size \ph{8}, at sequence lengths 512 and 2048,
-with \ph{10} warm-up iterations followed by \ph{30} measured iterations, and
+\texttt{use\_cache=False}, batch size \phm{8}, at sequence lengths 512 and 2048,
+with \phm{10} warm-up iterations followed by \phm{30} measured iterations, and
 \texttt{torch.cuda.synchronize()} around each timed region. We report the median
-and interquartile range. We make no claim about end-to-end generation latency,
-which depends on decode-time behaviour we do not measure here.
+and interquartile range over synthetic inputs, on the same NVIDIA RTX 3090 in BF16
+with eager attention, using the \Cref{tab:main} $k=4$ layer set. The largest
+interquartile range at any configuration is \phm{1.12}\,ms, so the \phm{0.23}\%
+\mname-over-plain-skip overhead sits outside measurement noise. We make no
+claim about end-to-end generation latency, which depends on decode-time behaviour
+we do not measure here.
 
 \subsection{Two taps buy nothing}
 \label{sec:app-ar2}
@@ -54,6 +59,19 @@ is, not at all. The information a second tap adds is negligible next to the
 information a second \emph{channel} adds, which is the point of \cref{eq:diag}: the
 useful axis of capacity here is across the hidden width, not back along depth. We
 therefore report the one-tap predictor throughout and do not pursue longer windows.
+
+\subsection{Depth is anti-correlated before it is autoregressive}
+\label{sec:app-anticorr}
+
+The momentum the
+method assumes is not a general property of depth. Through the middle of
+Qwen2.5-0.5B every fitted scalar coefficient is negative (layers 4--16, \phm{13} of
+\phm{13}), and this is not an artifact of summarizing many channels with one number:
+\phm{88}\% of the individual per-channel coefficients in that region are also
+negative, with a median of \phm{$-0.19$}. Successive blocks there partially
+\emph{undo} one another. Positive depth-wise momentum appears only in the last
+quarter of the stack, and it is there --- together with the earliest layers --- that
+the recoverable damage is concentrated.
 
 \subsection{The ridge coefficient}
 \label{sec:app-ridge}

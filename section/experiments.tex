@@ -5,21 +5,17 @@
 \input{tables/selection_table}
 \input{tables/main_table}
 
-\paragraph{Setup.} We evaluate on Qwen2.5-0.5B, Qwen2.5-1.5B, and
-Qwen2.5-\topscale \citep{qwen2025}. Coefficients are fitted in closed form
-(\cref{eq:fit}) on unlabeled WikiText-103 text \citep{merity2017pointer} --- 16
-sequences of length 512 for the 0.5B analysis, and \ph{32} for the larger models
---- with a disjoint held-out split of the same size used to score $P_\ell$ and to
-measure recovery; no task data is used for calibration. Skipped blocks are
-constrained to be non-adjacent, so that no skipped layer consumes a \emph{predicted}
-update as the input to its own prediction. Every predictor is compared \emph{at an
-identical skipped-layer set}, so differences isolate the update predictor rather
-than the selection rule, and every selection rule is compared across identical
-predictors. The 0.5B and 1.5B models run in FP32 on an NVIDIA TITAN X (Pascal)
-GPU; the \topscale model runs in BF16 on a single NVIDIA RTX 3090 GPU. Neither
-configuration uses FlashAttention. We report \emph{prefill} latency only,
-CUDA-synchronized, at sequence lengths 512 and 2048 with \texttt{use\_cache=False};
-we make no claim about end-to-end generation speed.
+\paragraph{Setup.} We evaluate Qwen2.5-0.5B, Qwen2.5-1.5B and Qwen2.5-\topscale
+\citep{qwen2025}. Coefficients are fitted in closed form (\cref{eq:fit}) on unlabeled
+WikiText-103 \citep{merity2017pointer} and scored on a disjoint held-out split; no task
+data is used for calibration. We report NLL and accuracy on \phm{300} examples each of
+HellaSwag \citep{zellers2019hellaswag}, PIQA \citep{bisk2020piqa} and ARC-Easy
+\citep{clark2018think}. Skipped blocks are non-adjacent, so no skipped layer consumes a
+\emph{predicted} update as its own input, and within a budget every predictor skips the
+\emph{identical} blocks, isolating the predictor from the selection rule. The 0.5B runs
+use FP32 on an NVIDIA TITAN X (Pascal) GPU; 1.5B and \topscale use BF16 on a single
+NVIDIA RTX 3090. No configuration uses FlashAttention. Full protocol in
+\Cref{sec:app-protocol}.
 
 \paragraph{A single coefficient per layer is not enough.} \Cref{tab:selection}
 reports the fraction of plain-skip NLL damage that each predictor recovers. The
@@ -53,25 +49,38 @@ level down, in hyperparameter selection: choosing the ridge coefficient of
 low-energy channels barely register in it --- and it is precisely their
 unregularized coefficients that wreck the model.
 
-\paragraph{Depth is anti-correlated before it is autoregressive.} The momentum the
-method assumes is not a general property of depth. Through the middle of
-Qwen2.5-0.5B every fitted scalar coefficient is negative (layers 4--16, \phm{13} of
-\phm{13}), and this is not an artifact of summarizing many channels with one number:
-\phm{88}\% of the individual per-channel coefficients in that region are also
-negative, with a median of \phm{$-0.19$}. Successive blocks there partially
-\emph{undo} one another. Positive depth-wise momentum appears only in the last
-quarter of the stack, and it is there --- together with the earliest layers --- that
-the recoverable damage is concentrated.
+\paragraph{Likelihood recovers; behaviour does not.} \Cref{tab:main} carries the
+comparison to downstream tasks. \mname improves language-modelling loss over plain
+skipping at every scale and budget, but the accuracy gap it is supposed to close
+does not close. At four skipped blocks with damage-based selection, likelihood
+recovery is positive at both scales (\phm{4.6}\% on 0.5B, \phm{10.3}\% on 1.5B)
+while accuracy recovery is \emph{negative} --- \phm{$-21.1$}\% and \phm{$-6.0$}\%
+respectively. In absolute terms on 0.5B, \mname reaches \phm{0.510} average
+accuracy where plain skipping reaches \phm{0.523}: predicting the missing update
+leaves the model measurably \emph{worse} on task than deleting it, even as it makes
+the model measurably better at predicting text. On 0.5B the sign is negative at
+every budget we ran. The single budget at which accuracy does improve --- $k=2$ on
+1.5B, \phm{18.5}\% --- is one cell out of the grid, and we report it as an
+exception rather than a result. The depth-wise anti-correlation underlying all of
+this is quantified in \Cref{sec:app-anticorr}.
 
-\paragraph{The effect holds at scale.} \Cref{tab:main} carries the comparison to
-Qwen2.5-1.5B and Qwen2.5-\topscale on downstream tasks, with layers chosen by
-measured recovery. The ordering established on 0.5B is unchanged: Copy Update is
-worse than plain skipping, the scalar predictor recovers a little, and \mname
-recovers materially more, restoring \ph{29}\% of the average-accuracy drop at
-$k=4$ on \topscale while leaving prefill latency within \ph{2}\% of plain
-skipping's. The absolute recovery is modest, and we present it as such: replacing
-the zero-update assumption is a real but bounded gain, not a way to skip layers for
-free.
+\paragraph{Large recovery fractions can hide unacceptable models.} Selecting layers
+to maximise recovery inflates the fraction while destroying the model. On 1.5B at
+$k=4$ that rule yields \mname's largest likelihood recovery anywhere,
+\phm{66.3}\%, at an absolute loss of \phm{4.01} against a dense \phm{2.33} --- a
+model no one would deploy. Damage-based selection recovers a far smaller fraction,
+\phm{10.3}\%, at an absolute loss of \phm{2.71}. The largest recovery fractions
+arise precisely on the layer sets whose absolute quality is unacceptable, which is
+the dissociation stated in the units practitioners actually optimize.
+
+\paragraph{The forecast is cheap; that is not the problem.} On Qwen2.5-1.5B at four
+skipped blocks, \mname adds \phm{0.23}\% \emph{prefill} latency over plain skipping at
+sequence length 512 (\phm{0.18}\% at 2048), retaining a \phm{1.146}$\times$ prefill
+speedup over the dense model where plain skipping reaches \phm{1.149}$\times$
+(\Cref{sec:app-latency}). The per-channel forecast costs two tenths of one percent of
+prefill latency and recovers a real fraction of the likelihood; what it does not buy is
+downstream accuracy. We measure prefill only and make no claim about end-to-end
+generation.
 
 \paragraph{Why the per-channel predictor wins is not yet settled.} We can measure
 that it does, and we can dissect one clear case of scalar failure: at layer 3 the

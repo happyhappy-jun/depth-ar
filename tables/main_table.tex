@@ -1,48 +1,49 @@
 \begin{table*}[!t]
 \centering
 \small
-\caption{\textbf{\mname at scale.} Downstream quality at matched skipped-layer
-sets, with layers chosen by measured recovery. All predictors within a row group
-skip the \emph{same} $k$ blocks, so differences isolate the update predictor.
-WikiText-2 NLL is lower-better; task accuracies are higher-better. Gap recovered is
-the fraction of the Dense$\rightarrow$Plain Skip average-accuracy drop that a
-method restores, so Plain Skip is $0$ by construction and a \emph{negative} value
-means the method is worse than dropping the update outright. Best value per column
-within a row group in \textbf{bold}. The 1.5B model is evaluated in FP32 on an
-NVIDIA TITAN X (Pascal) GPU and the \topscale model in BF16 on a single NVIDIA RTX
-3090 GPU.}
+\caption{\textbf{Likelihood recovers; behaviour does not.} Downstream quality at
+matched skipped-layer sets, layers chosen by measured residual damage --- the
+deployable rule. Within each budget every predictor skips the \emph{identical}
+blocks (verified per run), so differences isolate the update predictor. NLL is
+lower-better, accuracies higher-better; the best value in each column within a
+budget is in \textbf{bold}, whichever method attains it. Gap recovered is the
+fraction of the Dense$\rightarrow$Plain Skip \emph{average-accuracy} drop a method
+restores, so Plain Skip is $0$ by construction and negative means \emph{worse than
+dropping the update outright}. The bolding is the finding: \mname wins the NLL
+column at every budget and loses the accuracy columns to Plain Skip. 0.5B in FP32
+on an NVIDIA TITAN X (Pascal) GPU; 1.5B in BF16 on a single NVIDIA RTX 3090.}
 \label{tab:main}
 \begin{tabular}{llcccccc}
 \toprule
 Method & $k/L$ & WikiText-2 NLL $\downarrow$ & HellaSwag $\uparrow$ & PIQA $\uparrow$ & ARC-E $\uparrow$ & Avg. $\uparrow$ & Gap rec. $\uparrow$ \\
 \midrule
+\multicolumn{8}{c}{\textit{\cellcolor[HTML]{EFEFEF}Qwen2.5-0.5B ($L=24$)}} \\
+\midrule
+Dense                  & 0/24 & \phm{2.76} & \phm{48.0} & \phm{68.0} & \phm{60.0} & \phm{58.7} & --- \\
+\graymidrule
+Plain Skip             & 2/24 & \phm{2.98} & \textbf{\phm{44.0}} & \textbf{\phm{66.0}} & \textbf{\phm{48.0}} & \textbf{\phm{52.7}} & \phm{+0.0}\% \\
+Copy Update            & 2/24 & \phm{3.41} & \phm{39.0} & \phm{64.0} & \phm{47.0} & \phm{50.0} & \phm{-44.4}\% \\
+Scalar AR(1)           & 2/24 & \phm{2.97} & \phm{43.0} & \phm{64.0} & \textbf{\phm{48.0}} & \phm{51.7} & \phm{-16.7}\% \\
+\textbf{\mname (Ours)} & 2/24 & \textbf{\phm{2.97}} & \phm{41.0} & \phm{64.0} & \textbf{\phm{48.0}} & \phm{51.0} & \phm{-27.8}\% \\
+\graymidrule
+Plain Skip             & 4/24 & \phm{3.42} & \textbf{\phm{42.0}} & \textbf{\phm{68.0}} & \textbf{\phm{47.0}} & \textbf{\phm{52.3}} & \phm{+0.0}\% \\
+Copy Update            & 4/24 & \phm{5.08} & \phm{31.0} & \phm{54.0} & \phm{42.0} & \phm{42.3} & \phm{-157.9}\% \\
+Scalar AR(1)           & 4/24 & \phm{3.41} & \phm{40.0} & \textbf{\phm{68.0}} & \phm{46.0} & \phm{51.3} & \phm{-15.8}\% \\
+\textbf{\mname (Ours)} & 4/24 & \textbf{\phm{3.39}} & \phm{40.0} & \phm{66.0} & \textbf{\phm{47.0}} & \phm{51.0} & \phm{-21.1}\% \\
+\midrule
 \multicolumn{8}{c}{\textit{\cellcolor[HTML]{EFEFEF}Qwen2.5-1.5B ($L=28$)}} \\
 \midrule
-Dense                  & 0/28 & \ph{2.35} & \ph{67.0} & \ph{76.0} & \ph{75.1} & \ph{72.7} & --- \\
+Dense                  & 0/28 & \phm{2.33} & \phm{67.3} & \phm{73.7} & \phm{73.0} & \phm{71.3} & --- \\
 \graymidrule
-Plain Skip             & 2/28 & \ph{2.52} & \ph{65.4} & \ph{74.8} & \ph{73.0} & \ph{71.1} & \ph{0}\% \\
-Copy Update            & 2/28 & \ph{2.71} & \ph{64.1} & \ph{73.9} & \ph{71.4} & \ph{69.8} & \ph{$-81$}\% \\
-Scalar AR(1)           & 2/28 & \ph{2.48} & \ph{65.7} & \ph{75.0} & \ph{73.5} & \ph{71.4} & \ph{19}\% \\
-\textbf{\mname (Ours)} & 2/28 & \textbf{\ph{2.45}} & \textbf{\ph{66.0}} & \textbf{\ph{75.3}} & \textbf{\ph{73.9}} & \textbf{\ph{71.7}} & \textbf{\ph{38}\%} \\
+Plain Skip             & 2/28 & \phm{2.47} & \phm{61.7} & \phm{73.3} & \phm{70.0} & \phm{68.3} & \phm{+0.0}\% \\
+Copy Update            & 2/28 & \phm{2.83} & \phm{58.0} & \textbf{\phm{76.0}} & \phm{57.3} & \phm{63.8} & \phm{-151.9}\% \\
+Scalar AR(1)           & 2/28 & \phm{2.46} & \textbf{\phm{62.7}} & \phm{73.3} & \phm{70.0} & \phm{68.7} & \phm{+11.1}\% \\
+\textbf{\mname (Ours)} & 2/28 & \textbf{\phm{2.46}} & \textbf{\phm{62.7}} & \phm{73.3} & \textbf{\phm{70.7}} & \textbf{\phm{68.9}} & \phm{+18.5}\% \\
 \graymidrule
-Plain Skip             & 4/28 & \ph{2.77} & \ph{63.8} & \ph{73.5} & \ph{68.5} & \ph{68.6} & \ph{0}\% \\
-Copy Update            & 4/28 & \ph{3.14} & \ph{61.5} & \ph{71.8} & \ph{65.9} & \ph{66.4} & \ph{$-54$}\% \\
-Scalar AR(1)           & 4/28 & \ph{2.71} & \ph{64.3} & \ph{73.9} & \ph{69.4} & \ph{69.2} & \ph{15}\% \\
-\textbf{\mname (Ours)} & 4/28 & \textbf{\ph{2.66}} & \textbf{\ph{64.8}} & \textbf{\ph{74.3}} & \textbf{\ph{70.2}} & \textbf{\ph{69.8}} & \textbf{\ph{29}\%} \\
-\midrule
-\multicolumn{8}{c}{\textit{\cellcolor[HTML]{EFEFEF}Qwen2.5-\topscale ($L=28$)}} \\
-\midrule
-Dense                  & 0/28 & \ph{2.05} & \ph{78.9} & \ph{80.5} & \ph{80.0} & \ph{79.8} & --- \\
-\graymidrule
-Plain Skip             & 2/28 & \ph{2.19} & \ph{77.5} & \ph{79.5} & \ph{78.1} & \ph{78.4} & \ph{0}\% \\
-Copy Update            & 2/28 & \ph{2.36} & \ph{76.4} & \ph{78.7} & \ph{76.8} & \ph{77.3} & \ph{$-79$}\% \\
-Scalar AR(1)           & 2/28 & \ph{2.16} & \ph{77.8} & \ph{79.7} & \ph{78.4} & \ph{78.6} & \ph{17}\% \\
-\textbf{\mname (Ours)} & 2/28 & \textbf{\ph{2.13}} & \textbf{\ph{78.1}} & \textbf{\ph{79.9}} & \textbf{\ph{78.9}} & \textbf{\ph{79.0}} & \textbf{\ph{40}\%} \\
-\graymidrule
-Plain Skip             & 4/28 & \ph{2.41} & \ph{76.1} & \ph{78.3} & \ph{74.7} & \ph{76.4} & \ph{0}\% \\
-Copy Update            & 4/28 & \ph{2.79} & \ph{74.0} & \ph{76.9} & \ph{72.1} & \ph{74.3} & \ph{$-61$}\% \\
-Scalar AR(1)           & 4/28 & \ph{2.34} & \ph{76.6} & \ph{78.7} & \ph{75.4} & \ph{76.9} & \ph{16}\% \\
-\textbf{\mname (Ours)} & 4/28 & \textbf{\ph{2.29}} & \textbf{\ph{77.1}} & \textbf{\ph{79.0}} & \textbf{\ph{76.1}} & \textbf{\ph{77.4}} & \textbf{\ph{29}\%} \\
+Plain Skip             & 4/28 & \phm{2.75} & \textbf{\phm{51.0}} & \textbf{\phm{72.7}} & \textbf{\phm{68.0}} & \textbf{\phm{63.9}} & \phm{+0.0}\% \\
+Copy Update            & 4/28 & \phm{4.46} & \phm{34.3} & \phm{60.7} & \phm{37.3} & \phm{44.1} & \phm{-265.7}\% \\
+Scalar AR(1)           & 4/28 & \phm{2.71} & \textbf{\phm{51.0}} & \phm{72.3} & \phm{67.3} & \phm{63.6} & \phm{-4.5}\% \\
+\textbf{\mname (Ours)} & 4/28 & \textbf{\phm{2.71}} & \textbf{\phm{51.0}} & \phm{71.7} & \phm{67.7} & \phm{63.4} & \phm{-6.0}\% \\
 \bottomrule
 \end{tabular}
 \end{table*}

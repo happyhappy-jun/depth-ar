@@ -78,8 +78,20 @@ actually repairs (Spearman \phm{$-0.015$}, $p=\phm{0.95}$, $n=\phm{22}$). Select
 the most predictable layers is not merely suboptimal but actively bad: at two
 skipped blocks it leaves the scalar predictor far \emph{worse} than plain skipping.
 Layer selection must be validated against recovery, which must be measured. (3)
-\textbf{Depth is anti-correlated before it is autoregressive}, as above --- a fact
-about Transformer depth that is independent of our method and that any future
-update-prediction scheme has to contend with. Selecting by measured recovery,
-\mname repairs up to \phm{24.7}\% of the language-modelling damage plain skipping
-causes at matched depth, against \phm{16.3}\% for the scalar predictor.
+\textbf{Likelihood recovery does not transfer to behaviour.} \mname recovers a
+real fraction of the language-modelling damage that skipping causes at every scale
+and budget we test --- \phm{10.3}\% at the deployable operating point of
+Qwen2.5-1.5B, and more when layers are selected to maximise it. Downstream
+accuracy does not follow. At four skipped blocks, at the same operating point, the
+accuracy gap is not closed but slightly widened: \phm{$-21.1$}\% on Qwen2.5-0.5B
+and \phm{$-6.0$}\% on Qwen2.5-1.5B, against positive likelihood recovery in both
+cases. We therefore make no claim that \mname improves downstream quality, and we
+report the one budget at which it does (\phm{18.5}\% at $k=2$ on 1.5B) as the
+exception it is.
+
+The three findings are one finding. Predictability is an energy-weighted geometric
+score, and it does not predict repair. The ridge coefficient chosen by that same
+geometric criterion leaves the model catastrophically worse. And the likelihood
+recovery \mname does achieve does not reach the behaviour anyone actually deploys
+a model for. Each is a cheaper proxy standing in for functional preservation, and
+each overestimates it.
