@@ -67,7 +67,7 @@ ridge system built from the Gram matrix of $\{\dd_{\ell-1}, \dd_{\ell-2}\}$. Bot
 are obtained by streaming a few calibration sequences through the dense model
 once and accumulating scalar statistics in FP64: no hidden states are stored, no
 gradients are taken, and recalibrating an entire model costs a single forward
-pass over \ph{16}--\ph{32} sequences. Padding tokens are excluded from the
+pass over 16--\ph{32} sequences. Padding tokens are excluded from the
 accumulators.
 
 \paragraph{Predictability is measurable before skipping.} The same statistics

@@ -18,11 +18,12 @@ and (vi) padding tokens are excluded from the coefficient accumulators of
 \subsection{Calibration and evaluation protocol}
 \label{sec:app-protocol}
 
-Coefficients are fitted on \ph{32} unlabeled C4 sequences of length \ph{512}
-\citep{raffel2020exploring}, and $P_\ell$ is scored on a disjoint held-out split
-of the same size. Statistics are accumulated in FP64 (\cref{eq:fit}) so that no
-hidden states need to be stored. Task evaluation uses fixed example IDs with seed
-42 throughout. Discovery and verification runs (0.5B, 1.5B) are executed in FP32
+Coefficients are fitted on unlabeled WikiText-103 text \citep{merity2017pointer},
+and $P_\ell$ is scored on a disjoint held-out split of the same size. The 0.5B
+layer scan uses 16 calibration and 16 held-out sequences of length 512; the
+larger models use \ph{32} of each. Statistics are accumulated in FP64
+(\cref{eq:fit}) so that no hidden states need to be stored. Task evaluation uses
+fixed example IDs with seed 42 throughout. Discovery and verification runs (0.5B, 1.5B) are executed in FP32
 on an NVIDIA TITAN X (Pascal) GPU; the headline \topscale runs are executed in
 BF16 on a single NVIDIA RTX 3090 GPU. Neither configuration uses FlashAttention,
 so we use the reference attention implementation throughout. We caution that

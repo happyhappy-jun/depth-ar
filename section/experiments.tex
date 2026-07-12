@@ -5,9 +5,10 @@
 
 \paragraph{Setup.} We evaluate on Qwen2.5-0.5B, Qwen2.5-1.5B, and
 Qwen2.5-\topscale \citep{qwen2025}. Coefficients are fitted in closed form
-(\cref{eq:fit}) on \ph{32} unlabeled C4 sequences of length \ph{512}
-\citep{raffel2020exploring}, with a disjoint held-out split of the same size used
-to score $P_\ell$; no task data is used for calibration. We report WikiText-2
+(\cref{eq:fit}) on unlabeled WikiText-103 text \citep{merity2017pointer} --- 16
+sequences of length 512 for the 0.5B layer scan, and \ph{32} for the larger
+models --- with a disjoint held-out split of the same size used to score $P_\ell$;
+no task data is used for calibration. We report WikiText-2
 negative log-likelihood \citep{merity2017pointer} and accuracy on HellaSwag
 \citep{zellers2019hellaswag}, PIQA \citep{bisk2020piqa}, and ARC-Easy
 \citep{clark2018think}, all with fixed example IDs and seed 42. Every method is
