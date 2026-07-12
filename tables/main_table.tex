@@ -1,4 +1,4 @@
-\begin{table}[t]
+\begin{table*}[t]
 \centering
 \footnotesize
 \setlength{\tabcolsep}{3pt}
@@ -10,15 +10,7 @@ higher-better; the best value in each column within a budget is in \textbf{bold}
 whichever method attains it. \mname wins the NLL column at every budget and scale. On accuracy,
 \emph{at these light budgets} ($k \le 4$), no difference is statistically significant at any
 scale (largest $|z| = 1.18$, against a $95\%$ bar of $1.96$ and a Bonferroni bar of
-$3.35$). At heavier budgets the picture changes and the gains become significant
-(\Cref{sec:app-pareto}). The point estimates favour Plain Skip on 0.5B and \mname on 7B, and
-neither direction clears sampling noise. Gap recovered is the fraction of the
-Dense$\rightarrow$Plain Skip \emph{average-accuracy} drop a method restores, reported
-with its absolute count in parentheses, net correct answers against Plain Skip, out of
-300 graded on 0.5B and 900 on 1.5B and 7B. Read the count, not the fraction:
-7B $k{=}4$'s $+35.5\%$ is 22 answers, and is not significant
-(\Cref{sec:app-noise}). An empty cell means not applicable: Dense is the reference, and
-Plain Skip is $0$ by construction. Hardware and protocol: \Cref{sec:app-protocol}.}
+$3.35$). }
 \label{tab:main}
 \begin{tabular}{llcccccc}
 \toprule
@@ -39,4 +31,4 @@ Scalar AR(1)           & 4/28 & 2.36 & 67.7 & \textbf{78.0} & 73.7 & 73.1 & +8.1
 \textbf{\mname (Ours)} & 4/28 & \textbf{2.29} & \textbf{70.3} & 77.3 & \textbf{77.3} & \textbf{75.0} & +35.5\%\ (+22) \\
 \bottomrule
 \end{tabular}
-\end{table}
+\end{table*}
