@@ -41,12 +41,16 @@ We report \emph{prefill} latency only: a forward pass with
 \texttt{use\_cache=False}, batch size \phm{8}, at sequence lengths 512 and 2048,
 with \phm{10} warm-up iterations followed by \phm{30} measured iterations, and
 \texttt{torch.cuda.synchronize()} around each timed region. We report the median
-and interquartile range over synthetic inputs, on the same NVIDIA RTX 3090 in BF16
-with eager attention, using the \Cref{tab:main} $k=4$ layer set. The largest
-interquartile range at any configuration is \phm{1.12}\,ms, so the \phm{0.23}\%
-\mname-over-plain-skip overhead sits outside measurement noise. We make no
-claim about end-to-end generation latency, which depends on decode-time behaviour
-we do not measure here.
+and interquartile range over synthetic inputs, on an NVIDIA RTX 3090 in BF16 with eager
+attention, using the \Cref{tab:main} $k=4$ layer set, for both Qwen2.5-1.5B and
+Qwen2.5-7B. On 7B at sequence length 512 the \mname-over-plain-skip overhead is
+\phm{4.9}\,ms against interquartile ranges of \phm{1.19} and \phm{0.57}\,ms, so it is
+resolvable; at 2048 the overhead is \phm{1.0}\,ms against interquartile ranges of
+\phm{4.08} and \phm{4.16}\,ms, so at that length it is \emph{not} distinguishable from
+measurement noise and we do not claim it is. Either way the overhead is well under one
+percent, and the block-compute saving that motivates skipping is preserved. We make no
+claim about end-to-end generation latency, which depends on decode-time behaviour we do
+not measure here.
 
 \subsection{Two taps buy nothing}
 \label{sec:app-ar2}

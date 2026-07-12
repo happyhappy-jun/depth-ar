@@ -80,14 +80,16 @@ no significant accuracy effect at all. Recovery and functional repair agree only
 model is already ruined enough for there to be something obvious to repair. The
 depth-wise anti-correlation underlying this is quantified in \Cref{sec:app-anticorr}.
 
-\paragraph{The forecast is cheap; that is not the problem.} On Qwen2.5-1.5B at four
-skipped blocks, \mname adds \phm{0.23}\% \emph{prefill} latency over plain skipping at
-sequence length 512 (\phm{0.18}\% at 2048), retaining a \phm{1.146}$\times$ prefill
-speedup over the dense model where plain skipping reaches \phm{1.149}$\times$
-(\Cref{sec:app-latency}). The per-channel forecast costs two tenths of one percent of
-prefill latency and recovers a real fraction of the likelihood; what it does not buy,
-at the deployable operating point, is any measurable downstream accuracy. We measure
-prefill only and make no claim about end-to-end generation.
+\paragraph{The forecast is cheap; that is not the problem.} On Qwen2.5-7B at the same
+four skipped blocks, \mname adds \phm{0.64}\% \emph{prefill} latency over plain skipping
+at sequence length 512, and \phm{0.03}\% at 2048 --- the latter smaller than the
+interquartile range of the measurement itself. It retains a \phm{1.141}$\times$ prefill
+speedup over the dense model, where plain skipping reaches \phm{1.148}$\times$
+(\Cref{sec:app-latency}). The per-channel forecast therefore costs well under one percent
+of prefill latency and recovers a real fraction of the likelihood; what it does not buy,
+at the deployable operating point, is any measurable downstream accuracy. The
+dissociation is not a cost trade-off. We measure prefill only and make no claim about
+end-to-end generation.
 
 \paragraph{Why the per-channel predictor wins is not settled.} We can dissect one
 clear case of scalar failure: at layer 3 the fitted scalar is \phm{$+1.10$} while the
