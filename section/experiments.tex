@@ -36,14 +36,14 @@ worse than not predicting at all.
 
 \paragraph{Under aggressive pruning, likelihood recovery becomes behaviour.} The skip
 operator matters most where plain skipping breaks the model. Selecting layers to maximise
-recovery on Qwen2.5-1.5B drives plain-skip loss to \phm{5.99} at $k=2$ and \phm{7.31} at
-$k=4$ against a dense \phm{2.33}, collapsing downstream accuracy. At those same layer sets
-\mname recovers \phm{70.0}\% and \phm{66.3}\% of the likelihood and answers \phm{132} and
-\phm{90} more questions correctly out of \phm{900} than plain skipping ($z=\phm{6.45}$,
-$\phm{4.37}$), the only \phm{2} of \phm{16} accuracy comparisons here that survive
-Bonferroni correction. The context matters: these are gains over a badly damaged baseline,
-and the pruned models remain well below dense quality. But they hold at a matched skipping
-fraction, which makes them the right comparison for anyone who must compress hard.
+recovery on Qwen2.5-1.5B drives plain-skip loss to \phm{5.99} at $k=2$ against a dense
+\phm{2.33}, collapsing downstream accuracy. At those layer sets \mname recovers \phm{70.0}\%
+of the likelihood and answers \phm{132} and \phm{90} more questions correctly out of
+\phm{900} than plain skipping ($z=\phm{6.45}$, $\phm{4.37}$), the only \phm{2} of \phm{37}
+accuracy comparisons here to survive Bonferroni correction. The context matters: these are
+gains over a badly damaged baseline, and the pruned models remain well below dense quality.
+But they hold at a matched skipping fraction, which makes them the right comparison for
+anyone who must compress hard.
 
 \paragraph{Predictability does not imply recoverability.} Across the 22 eligible layers of
 Qwen2.5-0.5B, held-out predictability $P_\ell$ and the damage a predictor actually repairs
@@ -55,23 +55,30 @@ not the same objective as preserving function, and the same blindness recurs one
 down: selecting the ridge of \cref{eq:fit} by $P_\ell$ leaves development NLL at
 \phm{11.01} against a dense \phm{2.73} (\Cref{sec:app-ridge}).
 
-\paragraph{The forecast is cheap.} On Qwen2.5-7B at four skipped blocks, \mname adds
-\phm{0.64}\% \emph{prefill} latency over plain skipping at sequence length 512, retaining a
-\phm{1.141}$\times$ prefill speedup over the dense model where plain skipping reaches
-\phm{1.148}$\times$ (\Cref{sec:app-latency}). We measure prefill only and make no claim
-about end-to-end generation.
+\paragraph{The forecast is cheap, and it buys frontier position.} On Qwen2.5-7B at four
+skipped blocks, \mname adds \phm{0.64}\% \emph{prefill} latency over plain skipping at
+sequence length 512, retaining a \phm{1.141}$\times$ prefill speedup over the dense model
+(\phm{1.151}$\times$ at 2048) where plain skipping reaches \phm{1.148}$\times$
+(\Cref{sec:app-latency}). The two methods sit at effectively the same point on the compute
+axis, so all of \mname's advantage is quality at that point, and that advantage widens as
+compression deepens: on 0.5B it recovers \phm{18.0}\% of the plain-skip damage at a quarter
+of blocks skipped and \phm{42.6}\% at \phm{41.7}\% (\Cref{sec:app-pareto}). We measure
+prefill latency at $k=4$ only and make no claim about end-to-end generation.
 
 \paragraph{Limitations.}
 \label{sec:limitations}
 At \emph{conservative} budgets, where plain skipping already preserves most of the model,
-the likelihood \mname recovers does not register as a downstream accuracy gain: no accuracy
-difference at the damage-based operating point is significant at any of the three scales
-(largest \phm{22} net correct answers of \phm{900} on 7B, $z=\phm{1.18}$ against a $95\%$
-bar of $1.96$; \Cref{sec:app-noise}). We claim no downstream improvement there, and
-symmetrically no harm. Translating conservative-budget likelihood recovery into accuracy is
+the likelihood \mname recovers does not register as a downstream accuracy gain. No accuracy
+difference at the damage-based operating point is significant at any of the three scales, and
+more tellingly, those differences are smaller than the run-to-run variation of the evaluation
+itself: re-scoring an identical configuration under a different task batch shape moves up to
+\phm{4} of \phm{900} answers (\Cref{sec:app-noise}). We claim no downstream improvement
+there, and symmetrically no harm. Translating conservative-budget likelihood recovery into accuracy is
 the natural next step. We also leave open \emph{why} the per-channel predictor succeeds
-where the scalar fails (\Cref{sec:app-experiments}). One clue: admitting the previous
-\emph{token}'s update from the preceding layer turns layer 2, the one pathology no ridge
-could suppress, from a recovery of \phm{$-3.31$} into \phm{$+0.19$}, so that failure was
-missing information, not mis-regularisation. On a single-layer 0.5B scan this raises median
-recovery \phm{1.8}$\times$ (preliminary; \Cref{sec:app-crosstoken}).
+where the scalar fails (\Cref{sec:app-experiments}). One clue comes from a
+\textbf{cross-token} variant, which also reads the previous \emph{token}'s update from the
+preceding layer: it turns layer 2, the one pathology no ridge could suppress, from a recovery
+of \phm{$-3.31$} into \phm{$+0.19$}, so that failure was missing information, not
+mis-regularisation. On a single-layer 0.5B scan cross-token prediction raises median recovery
+\phm{1.8}$\times$; it does not improve \mname at deployable layer sets, and we report it as
+preliminary in \Cref{sec:app-crosstoken}.

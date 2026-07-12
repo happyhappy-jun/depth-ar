@@ -63,13 +63,11 @@ method that works from one that does not.
 
 \textbf{(2) Under aggressive pruning the recovered likelihood becomes recovered
 behaviour.} At a matched skipping fraction, on layer sets where plain skipping has driven
-language-modelling loss to \phm{5.99} against a dense \phm{2.33} and collapsed downstream
-accuracy, \mname answers \phm{132} more questions correctly out of \phm{900} than plain
-skipping does, and \phm{90} more at the larger budget. These are the only \phm{2} of
-\phm{16} accuracy comparisons we run that survive Bonferroni correction, and they are the
-regime in which the choice of skip operator matters most: when a model must be compressed
-hard, predicting the missing update rather than deleting it is worth a large and
-measurable number of answers.
+loss to \phm{5.99} against a dense \phm{2.33} and collapsed accuracy, \mname answers
+\phm{132} more questions correctly out of \phm{900} than plain skipping, and \phm{90} more
+at the larger budget: the only \phm{2} of \phm{37} comparisons we run that survive
+Bonferroni correction. When a model must be compressed hard, predicting the missing update
+rather than deleting it is worth a large and measurable number of answers.
 
 \textbf{(3) Predictability is not recoverability.} Held-out explained update energy
 $P_\ell$, the cheap signal this method appears to hand you for free, is uncorrelated with

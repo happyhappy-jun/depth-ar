@@ -12,7 +12,7 @@ maximise recovery. At four skipped blocks the recovery grows with scale, reachin
 \phm{23.3}\% on 7B. Under aggressive pruning, where plain skipping collapses the model,
 the recovered likelihood also translates into behaviour: at a matched skipping fraction
 \mname answers \phm{132} more questions correctly out of \phm{900} than plain skipping
-does on Qwen2.5-1.5B, a gain that survives Bonferroni correction across all \phm{16}
+does on Qwen2.5-1.5B, a gain that survives Bonferroni correction across all \phm{37}
 comparisons we run, though the pruned models remain well below dense quality. Getting this to work required discarding the obvious version
 of the idea. A single global coefficient per layer fails, and at some layers is worse than
 dropping the update outright; only a $d$-dimensional coefficient vector succeeds. At
