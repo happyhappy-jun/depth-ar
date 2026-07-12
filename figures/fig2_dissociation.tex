@@ -1,0 +1,18 @@
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.98\textwidth]{figures/fig2_dissociation.pdf}
+\caption{\textbf{The same method, the same layers, two opposite verdicts.} Quality
+against the fraction of blocks skipped, for Qwen2.5-0.5B (circles) and Qwen2.5-1.5B
+(squares), with layers chosen by measured residual damage and every predictor skipping
+the identical blocks. \emph{Left:} on WikiText-2 likelihood, \mname (solid) sits below
+plain skipping (dashed) at every budget and both scales --- it recovers a real part of
+what skipping destroys, and the scalar predictor (dotted) recovers less. \emph{Right:}
+on downstream accuracy, the same curves at the same layer sets fall \emph{on or below}
+plain skipping. The insets plot the difference against plain skipping directly: negative
+is an improvement on the left and a regression on the right, and \mname is negative in
+both. The two panels are not a strong result and a weak one; they are a repair measured
+in one currency and its absence in another. Recovering a skipped layer's contribution to
+the loss is not recovering its contribution to the model's behaviour. 0.5B in FP32 on an
+NVIDIA TITAN X (Pascal) GPU; 1.5B in BF16 on a single NVIDIA RTX 3090.}
+\label{fig:dissociation}
+\end{figure*}

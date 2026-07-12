@@ -4,6 +4,7 @@
 \input{figures/fig1_predictability}
 \input{tables/selection_table}
 \input{tables/main_table}
+\input{figures/fig2_dissociation}
 
 \paragraph{Setup.} We evaluate Qwen2.5-0.5B, Qwen2.5-1.5B and Qwen2.5-\topscale
 \citep{qwen2025}. Coefficients are fitted in closed form (\cref{eq:fit}) on unlabeled
@@ -49,8 +50,8 @@ level down, in hyperparameter selection: choosing the ridge coefficient of
 low-energy channels barely register in it --- and it is precisely their
 unregularized coefficients that wreck the model.
 
-\paragraph{Likelihood recovers; behaviour does not.} \Cref{tab:main} carries the
-comparison to downstream tasks. \mname improves language-modelling loss over plain
+\paragraph{Likelihood recovers; behaviour does not.} \Cref{tab:main} and
+\Cref{fig:dissociation} carry the comparison to downstream tasks. \mname improves language-modelling loss over plain
 skipping at every scale and budget, but the accuracy gap it is supposed to close
 does not close. At four skipped blocks with damage-based selection, likelihood
 recovery is positive at both scales (\phm{4.6}\% on 0.5B, \phm{10.3}\% on 1.5B)
