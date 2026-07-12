@@ -1,12 +1,7 @@
 \section{Conclusion}
 \label{sec:conclusion}
 
-Plain layer skipping assumes a skipped block's residual update is zero. It is not: much of it
-is predictable from the updates that precede it, and \mname recovers a substantial share of
-the likelihood that skipping destroys, in closed form, at 0.64\% of prefill latency.
-Across the Qwen2.5 family, the likelihood it recovers scales with the damage skipping
-inflicts, and significant downstream gains appear only where that damage is severe. Where plain
-skipping barely hurts, the accuracy effects lie below the evaluation's own noise floor; where
-it hurts badly, \mname recovers a large and statistically reliable share of what was lost,
-including under the deployable selection rule at scale. Repair pays off where pruning bites, and a first test outside that family bounds the ordering rather than
-confirming it (\Cref{sec:app-qwen3}).
+Plain skipping assumes a skipped block's residual update is zero. It is not: much of it is
+predictable, and \mname recovers a substantial share of the likelihood skipping destroys, in
+closed form, at 0.64\% of prefill latency. Downstream, significant gains appear only where the
+damage is severe. Repair pays off where pruning bites (\Cref{sec:app-qwen3}).

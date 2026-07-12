@@ -74,20 +74,16 @@ gradients are taken, no labels are used, and recalibrating an entire model costs
 single forward pass over 16--32 sequences. Padding tokens are excluded from
 the accumulators.
 
-\paragraph{Which layers to skip.} The natural companion to \cref{eq:fit} is the
-held-out fraction of update energy a predictor explains,
+\paragraph{Which layers to skip.} The natural companion to \cref{eq:fit} is the held-out
+fraction of update energy a predictor explains,
 \begin{equation}
-P_\ell = 1 -
-\frac{\sum \|\dd_\ell - \widehat{\dd}_\ell\|_2^2}
-     {\sum \|\dd_\ell\|_2^2},
+P_\ell = 1 - \frac{\sum \|\dd_\ell - \widehat{\dd}_\ell\|_2^2}{\sum \|\dd_\ell\|_2^2},
 \label{eq:pscore}
 \end{equation}
-computable from the dense model on unlabeled text before any skipping decision is taken,
-and an obvious candidate for ranking layers. We evaluate it against two rules that instead
-measure the effect of skipping directly on a development set, lowest single-layer NLL
-damage, and the damage a predictor actually repairs (\Cref{sec:app-selection}).
-\Cref{sec:experiments} shows the choice between them matters more than the choice of
-predictor, and that the cheap one is the wrong one.
+computable from the dense model before any skipping decision. We evaluate it against two rules
+that instead measure the effect of skipping directly on a development set
+(\Cref{sec:app-selection}). \Cref{sec:experiments} shows the choice between them matters more
+than the choice of predictor, and that the cheap one is the wrong one.
 
 \paragraph{Cost.} \mname stores a $d$-dimensional coefficient vector per skipped
 block ($d = 896$ on Qwen2.5-0.5B), three orders of magnitude fewer than the $d^2$

@@ -1,6 +1,8 @@
 \section{Experiments}
 \label{sec:experiments}
 
+\input{tables/selection_table}
+\input{tables/main_table}
 \input{figures/fig2_pair}
 
 \paragraph{Setup.} We evaluate Qwen2.5-0.5B, Qwen2.5-1.5B and Qwen2.5-\topscale
@@ -12,12 +14,10 @@ data is used for calibration. We report NLL and accuracy on HellaSwag
 \topscale), and give accuracy deltas as absolute counts, since recovered-gap fractions
 divide by very small denominators. Skipped blocks are non-adjacent, and within a budget
 every predictor skips the \emph{identical} blocks, isolating the predictor from the
-selection rule. Full protocol, hardware and precisions in \Cref{sec:app-protocol}. Every accuracy effect we
-report is measured against three quantified sources of uncertainty: the binomial standard error
-of the difference, Bonferroni correction across the full family of 63 comparisons we run,
-and the evaluation harness's own measured batch-shape jitter (\Cref{sec:app-noise}). One
-prediction in this paper was pre-registered before its data existed, and we report its outcome
-either way (\Cref{sec:app-crosstoken}).
+selection rule. Full protocol, hardware and precisions in \Cref{sec:app-protocol}. Every accuracy effect is measured against three
+quantified uncertainty sources: binomial standard error, Bonferroni correction across the full
+family of 63 comparisons, and the evaluation's own measured batch-shape jitter
+(\Cref{sec:app-noise}).
 
 \paragraph{A single coefficient per layer is not enough.} \Cref{tab:selection} (\Cref{sec:app-selection}) reports the
 fraction of plain-skip NLL damage each predictor recovers under three rules for choosing
@@ -49,38 +49,25 @@ selection on Qwen2.5-1.5B it answers 132 and 90 more ($z=6.45$,
 $4.37$). These are 4 of 63 comparisons and the only ones to survive
 Bonferroni correction, and every one occurs where plain skipping costs at least 27.7 accuracy
 points. Severe damage is \emph{necessary} for a downstream gain and not sufficient: of the six
-cells whose damage exceeds 27 points only three gain significantly, and the most damaged cell we
-measured (7B at $k=12$) does not. Damage says where repair can pay off, not how much it will.
+cells whose damage exceeds 27 points only three gain significantly (\Cref{fig:gains-pair}).
+Damage says where repair can pay off, not how much it will.
 
 These are gains over a badly damaged baseline (61.7\% average accuracy against a dense 79.4\%),
 not a claim that the compressed model matches dense quality, and the pattern has a limit
 (\Cref{sec:app-pareto}).
 
-\paragraph{Predictability does not imply recoverability.} Held-out predictability $P_\ell$ and
-the damage a predictor actually repairs are statistically unrelated (Spearman $-0.015$,
-$p=0.95$; \Cref{fig:momentum}), and choosing layers by $P_\ell$ is not merely suboptimal but
-actively harmful. Accurate reconstruction in residual space is not the same objective as
-preserving function, and the same blindness recurs when an energy-weighted criterion tunes the
-predictor itself (\Cref{sec:app-ridge}).
-
-\paragraph{The forecast is cheap, and it buys frontier position.} On Qwen2.5-7B at four
-skipped blocks, \mname adds 0.64\% \emph{prefill} latency over plain skipping at
-sequence length 512, retaining a 1.141$\times$ prefill speedup over the dense model
-(1.151$\times$ at 2048) where plain skipping reaches 1.148$\times$
-(\Cref{sec:app-latency}). The two methods sit at effectively the same point on the compute
-axis, so all of \mname's advantage is quality at that point (\Cref{sec:app-pareto}). We measure
-prefill latency at $k=4$ only and make no claim about end-to-end generation.
-
-The guidance follows: repair the update when skipping is expensive, and do not bother when it is
-cheap.
+\paragraph{The forecast is cheap.} On Qwen2.5-7B at four skipped blocks, \mname adds
+0.64\% \emph{prefill} latency over plain skipping at sequence length 512, retaining a
+1.141$\times$ prefill speedup over the dense model where plain skipping reaches
+1.148$\times$ (\Cref{sec:app-latency}). Both methods sit at effectively the same point on
+the compute axis, so all of \mname's advantage is quality at that point. Repair the update
+when skipping is expensive; do not bother when it is cheap.
 
 Extended results across all scales, budgets, and both model families appear in
 \Cref{sec:app-experiments}.
 
 \paragraph{Boundaries.} Two, both reported in full in \Cref{sec:app-noise} and
-\Cref{sec:app-qwen3}. At light budgets, where plain skipping leaves little repairable damage,
-the accuracy effects are smaller than the evaluation's own measured reproducibility floor, and
-we claim neither an improvement nor a regression there. And in the one out-of-family cell we
-tested where repair fails (Qwen3-1.7B), it fails because four layers that each repair to better
-than dense individually do not compose, so the damage ordering describes the runs we performed
-rather than a law.
+\Cref{sec:app-qwen3}: at light budgets the accuracy effects are smaller than the evaluation's own
+measured reproducibility floor, and in the one out-of-family cell where repair fails
+(Qwen3-1.7B), four layers that each repair to better than dense individually fail to compose.
+
