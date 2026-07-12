@@ -2,19 +2,24 @@
 Layer skipping makes Transformer inference cheaper by deleting entire residual
 blocks, but the operator it uses to do so is crude: it assumes the missing
 residual update is exactly zero. We ask whether that update is instead
-\emph{predictable} from computation the model has already performed, and show
-that it largely is. Consecutive residual updates trace a locally smooth
-trajectory across depth, so a block's update can be forecast from the updates
-that precede it. We introduce \textbf{\mname (Depth-wise AutoRegressive update
-prediction)}, which replaces a skipped block with a short autoregressive forecast
-of its residual update, using one or two scalars per skipped layer fitted in
-closed form on a handful of unlabeled calibration sequences. \mname needs no
-gradient training, adds only $O(Td)$ scaled vector additions, and leaves hidden
-width and attention structure untouched. Across Qwen2.5 models from 0.5B to
-\topscale parameters, at identical skipped-layer sets, \mname recovers \ph{62}\%
-of the quality that plain skipping discards: with four skipped blocks it costs
-\ph{1.3} points of average downstream accuracy where plain skipping costs
-\ph{3.4}, while retaining the same block-compute reduction and matching plain
-skipping's prefill latency to within \ph{2}\%. Plain skipping does not merely
-remove computation --- it discards computation the model has already forecast.
+\emph{predictable} from computation the model has already performed. We introduce
+\textbf{\mname (Depth-wise AutoRegressive update prediction)}, which replaces a
+skipped block with a closed-form autoregressive forecast of its residual update,
+fitted per channel on unlabeled text with no gradient training, at $O(Td)$
+inference cost. Getting this right required discarding the obvious version of the
+idea. A single global coefficient per layer --- the natural first instantiation ---
+fails, and at some layers is \emph{worse than dropping the update outright}; only
+a $d$-dimensional coefficient vector, one coefficient per channel, recovers the
+lost computation. Two further findings sharpen the picture. First, depth is not
+uniformly autoregressive: through the middle of Qwen2.5-0.5B successive blocks
+partially \emph{undo} one another, with \ph{88}\% of channels carrying a negative
+coefficient. Second, and more consequentially for practice, \emph{predictability
+does not imply recoverability} --- how well a layer's update can be forecast is
+statistically unrelated to how much damage forecasting it repairs (Spearman
+\ph{$-0.015$}, $p = \ph{0.95}$), so the cheap selection signal that this method
+seems to hand you is the wrong one to use. Selecting layers by measured recovery
+instead, \mname repairs up to \ph{24.7}\% of the language-modelling damage that
+plain skipping causes at matched depth, against \ph{16.3}\% for the scalar
+predictor. Plain skipping discards computation the model has already forecast ---
+but forecasting it accurately is not the same as getting it back.
 \end{abstract}

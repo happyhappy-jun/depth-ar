@@ -6,29 +6,32 @@
 
 \mname is implemented as a wrapper around the decoder stack that intercepts the
 residual update of each block. Before running any experiment we verified the
-wrapper against the following checks: (i) with no layers skipped, the wrapper
-reproduces the original model's logits to within floating-point tolerance; (ii)
-with $\alpha_\ell = 0$, \mname reproduces Plain Skip exactly; (iii) with
-$\alpha_\ell = 1$, it reproduces Copy Update exactly; (iv) a manually skipped
-layer agrees with the generic skip path; (v) residual updates are captured at the
-block boundary of \cref{eq:residual}, after the block's own residual addition;
-and (vi) padding tokens are excluded from the coefficient accumulators of
-\cref{eq:fit}.
+wrapper with six checks, all of which pass on Qwen2.5-0.5B (24 blocks, 22
+eligible). The dense wrapper reproduces the unmodified model's logits
+\textbf{bit-exactly} (maximum absolute logit difference $\ph{0.0}$), as do the
+$\aal_\ell = \bm{0}$ reduction to Plain Skip (checked at layers \ph{5}, \ph{9} and
+\ph{13}) and a hand-written single-layer skip (layer \ph{9}). Residual updates are
+captured at the block boundary of \cref{eq:residual} to a maximum absolute error of
+$\ph{3.8 \times 10^{-6}}$ against a hidden-state scale of $\ph{1.7 \times 10^{3}}$.
+Scrambling the padded token slots moves neither the fitted accumulators nor the
+held-out NLL ($\ph{0.0}$ change, \ph{192} real tokens counted), confirming that
+padding is excluded from \cref{eq:fit}. The selected layer set is non-adjacent by
+construction (minimum gap \ph{2}, first and last blocks excluded).
 
 \subsection{Calibration and evaluation protocol}
 \label{sec:app-protocol}
 
 Coefficients are fitted on unlabeled WikiText-103 text \citep{merity2017pointer},
 and $P_\ell$ is scored on a disjoint held-out split of the same size. The 0.5B
-layer scan uses 16 calibration and 16 held-out sequences of length 512; the
-larger models use \ph{32} of each. Statistics are accumulated in FP64
-(\cref{eq:fit}) so that no hidden states need to be stored. Task evaluation uses
-fixed example IDs with seed 42 throughout. Discovery and verification runs (0.5B, 1.5B) are executed in FP32
-on an NVIDIA TITAN X (Pascal) GPU; the headline \topscale runs are executed in
-BF16 on a single NVIDIA RTX 3090 GPU. Neither configuration uses FlashAttention,
-so we use the reference attention implementation throughout. We caution that
-absolute latencies are specific to this hardware, even though the relative
-comparison between methods is not.
+analysis uses 16 calibration and 16 held-out sequences of length 512; the larger
+models use \ph{32} of each. Statistics are accumulated in FP64 (\cref{eq:fit}) so
+that no hidden states need to be stored. Task evaluation uses fixed example IDs
+with seed 42 throughout. Discovery and verification runs (0.5B, 1.5B) are executed
+in FP32 on an NVIDIA TITAN X (Pascal) GPU; the headline \topscale runs are executed
+in BF16 on a single NVIDIA RTX 3090 GPU. Neither configuration uses FlashAttention,
+so we use the reference attention implementation throughout. Absolute latencies are
+specific to this hardware, even though the relative comparison between methods is
+not.
 
 \subsection{Latency measurement}
 \label{sec:app-latency}
@@ -40,26 +43,28 @@ with \ph{10} warm-up iterations followed by \ph{30} measured iterations, and
 and interquartile range. We make no claim about end-to-end generation latency,
 which depends on decode-time behaviour we do not measure here.
 
+\subsection{Two taps buy nothing}
+\label{sec:app-ar2}
+
+We also evaluated a two-tap variant, $\widehat{\dd}_\ell = \alpha_\ell \dd_{\ell-1}
++ \beta_\ell \dd_{\ell-2}$, fitting $(\alpha_\ell, \beta_\ell)$ through a
+$2\times2$ ridge system. Averaged over the eligible layers of Qwen2.5-0.5B it
+improves single-layer recovery over the one-tap scalar by \ph{$+0.0009$} --- that
+is, not at all. The information a second tap adds is negligible next to the
+information a second \emph{channel} adds, which is the point of \cref{eq:diag}: the
+useful axis of capacity here is across the hidden width, not back along depth. We
+therefore report the one-tap predictor throughout and do not pursue longer windows.
+
 \subsection{Layer selection}
 \label{sec:app-selection}
 
-Unless stated otherwise, the skipped set is the $k$ layers of highest held-out
-$P_\ell$ subject to a non-adjacency constraint: no two skipped blocks may be
-consecutive, so that a skipped block never consumes a \emph{predicted} update as
-the input to its own prediction. We compare this predictability-based selection
-against a low-damage selection rule, which ranks layers by the NLL increase
-caused by skipping each one individually. The comparison separates a failure of
-update \emph{prediction} from a failure of layer \emph{selection}; because \mname
-is applied at an identical layer set as every baseline in \Cref{tab:main}, the
-main result is unaffected by which rule is used.
-
-\subsection{\mname(2) and additional budgets}
-\label{sec:app-ar2}
-
-\Cref{tab:main} reports \mname(1), the single-scalar predictor of
-\cref{eq:ar1}. We also evaluated the two-tap variant \mname(2) of
-\cref{eq:ar2}, which fits $(\alpha_\ell, \beta_\ell)$ through a $2\times2$ ridge
-system. We present \mname(1) as the primary method because its simplicity is part
-of the contribution: a single scalar per skipped block is the smallest possible
-departure from the zero-update assumption, and it is the variant whose cost is
-most obviously negligible.
+The three selection rules of \Cref{tab:selection} are: (i) \emph{predictability},
+ranking layers by held-out $P_\ell$ (\cref{eq:pscore}), which requires only a
+forward pass of the dense model and no skipping; (ii) \emph{lowest single-layer
+damage}, ranking by the NLL increase caused by skipping each layer individually on
+the development set; and (iii) \emph{measured recovery}, ranking by the fraction of
+that damage the predictor repairs. Rules (ii) and (iii) require one forward pass
+per candidate layer and are correspondingly more expensive than (i); only (i) is
+free. That (i) is also the rule that fails is the practical sting of
+\Cref{sec:experiments}. All rules enforce the same non-adjacency constraint, and
+all predictors are compared at the identical layer set a rule produces.

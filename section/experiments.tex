@@ -2,47 +2,77 @@
 \label{sec:experiments}
 
 \input{tables/main_table}
+\input{tables/selection_table}
 
 \paragraph{Setup.} We evaluate on Qwen2.5-0.5B, Qwen2.5-1.5B, and
 Qwen2.5-\topscale \citep{qwen2025}. Coefficients are fitted in closed form
 (\cref{eq:fit}) on unlabeled WikiText-103 text \citep{merity2017pointer} --- 16
-sequences of length 512 for the 0.5B layer scan, and \ph{32} for the larger
-models --- with a disjoint held-out split of the same size used to score $P_\ell$;
-no task data is used for calibration. We report WikiText-2
-negative log-likelihood \citep{merity2017pointer} and accuracy on HellaSwag
-\citep{zellers2019hellaswag}, PIQA \citep{bisk2020piqa}, and ARC-Easy
-\citep{clark2018think}, all with fixed example IDs and seed 42. Every method is
-compared \emph{at an identical skipped-layer set}, so differences isolate the
-update predictor rather than the layer-selection rule. The 0.5B and 1.5B models
-run in FP32 on an NVIDIA TITAN X (Pascal) GPU; the \topscale model runs in BF16 on
-a single NVIDIA RTX 3090 GPU. Neither configuration uses FlashAttention, so all
-runs use the reference attention implementation. We report \emph{prefill} latency
-only, CUDA-synchronized, at sequence lengths 512 and 2048 with
-\texttt{use\_cache=False}; we make no claim about end-to-end generation speed.
+sequences of length 512 for the 0.5B analysis, and \ph{32} for the larger models
+--- with a disjoint held-out split of the same size used to score $P_\ell$ and to
+measure recovery; no task data is used for calibration. Skipped blocks are
+constrained to be non-adjacent, so that no skipped layer consumes a \emph{predicted}
+update as the input to its own prediction. Every predictor is compared \emph{at an
+identical skipped-layer set}, so differences isolate the update predictor rather
+than the selection rule, and every selection rule is compared across identical
+predictors. The 0.5B and 1.5B models run in FP32 on an NVIDIA TITAN X (Pascal)
+GPU; the \topscale model runs in BF16 on a single NVIDIA RTX 3090 GPU. Neither
+configuration uses FlashAttention. We report \emph{prefill} latency only,
+CUDA-synchronized, at sequence lengths 512 and 2048 with \texttt{use\_cache=False};
+we make no claim about end-to-end generation speed.
 
-\paragraph{\mname dominates plain skipping at matched depth.} \Cref{tab:main}
-reports the main comparison. At $k=4$ skipped blocks on \topscale, plain skipping
-costs \ph{3.4} points of average downstream accuracy relative to the dense model,
-while \mname costs \ph{1.3} --- a gap recovery of \ph{62}\%. The ordering is consistent
-across every model and budget we ran: Copy Update is already better than plain
-skipping, confirming that a nonzero update is better than none, and \mname is
-better still, confirming that the improvement comes from \emph{fitting} the
-coefficient rather than from merely reusing the previous update. The same
-ranking holds on WikiText-2 NLL, where \mname absorbs roughly \ph{half} of the
-degradation plain skipping introduces.
+\paragraph{A single coefficient per layer is not enough.} \Cref{tab:selection}
+reports the fraction of plain-skip NLL damage that each predictor recovers. The
+scalar predictor of \cref{eq:ar1} is not a mildly weaker version of \mname; under
+the cheap selection rule it is \emph{worse than plain skipping}, recovering
+\ph{$-0.745$} of the damage at $k=2$ --- that is, it roughly doubles it. Granting
+one coefficient per channel, and changing nothing else, turns that into
+\ph{$+0.053$}. The gap persists under every selection rule and both budgets: at
+$k=4$ with recovery-based selection, \mname repairs \ph{24.7}\% of the damage
+against \ph{16.3}\% for the scalar. Copy Update is worse than plain skipping
+everywhere, confirming that the benefit comes from \emph{fitting} the coefficients
+and not from injecting a nonzero update.
 
-\paragraph{Predictability forecasts where skipping is safe.} The per-layer score
-$P_\ell$ of \cref{eq:pscore} is not merely an internal quantity: layers with high
-held-out $P_\ell$ are the layers at which \mname recovers the most single-layer
-damage. Because $P_\ell$ is computed on the dense model from unlabeled text, this
-gives a selection signal that costs one forward pass and requires no downstream
-evaluation to calibrate.
+\paragraph{Predictability does not imply recoverability.} The most striking
+negative result is about \emph{selection}, not prediction. Across the 22 eligible
+layers of Qwen2.5-0.5B, held-out predictability $P_\ell$ and the fraction of
+skipping damage a predictor actually repairs are statistically unrelated (Spearman
+\ph{$-0.015$}, $p = \ph{0.95}$). Layer 3 is the extreme case: a single scalar
+explains \ph{90}\% of its update energy --- by far the most predictable layer in
+the network --- and yet substituting that prediction is markedly worse than
+dropping the update, nearly doubling the damage. Choosing layers by $P_\ell$ is
+therefore not merely suboptimal, it is actively harmful (\Cref{tab:selection},
+top block). This matters because $P_\ell$ is exactly the signal this method
+appears to hand you for free, and it is the one a practitioner would reach for
+first. Accurate reconstruction of the update in residual space is simply not the
+same objective as preserving the model's function.
 
-\paragraph{The quality gain is nearly free.} \mname's overhead is one scaled
-vector addition per skipped block. Measured prefill latency is within \ph{2}\% of
-plain skipping at both sequence lengths, and both remain clearly faster than the
-dense model, so \mname moves quality without giving back the compute saving that
-motivated skipping in the first place.
+\paragraph{Depth is anti-correlated before it is autoregressive.} The momentum the
+method assumes is not a general property of depth. Through the middle of
+Qwen2.5-0.5B every fitted scalar coefficient is negative (layers 4--16, \ph{13} of
+\ph{13}), and this is not an artifact of summarizing many channels with one number:
+\ph{88}\% of the individual per-channel coefficients in that region are also
+negative, with a median of \ph{$-0.19$}. Successive blocks there partially
+\emph{undo} one another. Positive depth-wise momentum appears only in the last
+quarter of the stack, and it is there --- together with the earliest layers --- that
+the recoverable damage is concentrated.
 
-We provide the full layer-wise profiles, the 0.5B development results, the
-\mname(2) comparison, and per-task breakdowns in \Cref{sec:app-experiments}.
+\paragraph{The effect holds at scale.} \Cref{tab:main} carries the comparison to
+Qwen2.5-1.5B and Qwen2.5-\topscale on downstream tasks, with layers chosen by
+measured recovery. The ordering established on 0.5B is unchanged: Copy Update is
+worse than plain skipping, the scalar predictor recovers a little, and \mname
+recovers materially more, restoring \ph{29}\% of the average-accuracy drop at
+$k=4$ on \topscale while leaving prefill latency within \ph{2}\% of plain
+skipping's. The absolute recovery is modest, and we present it as such: replacing
+the zero-update assumption is a real but bounded gain, not a way to skip layers for
+free.
+
+\paragraph{Why the per-channel predictor wins is not yet settled.} We can measure
+that it does, and we can dissect one clear case of scalar failure: at layer 3 the
+fitted scalar is \ph{$+1.10$} while the median channel coefficient is
+\ph{$-0.30$} and \ph{76}\% of channels are negative, so the norm-weighted scalar
+moves three quarters of the channels in the wrong direction. But this cannot be
+the whole story, because \mname also outperforms the scalar at layers whose
+channels agree in sign (\Cref{tab:selection}, middle block). We therefore report
+the effect and leave its mechanism open; we regard identifying it as the most
+interesting question this work raises. Full layer-wise profiles, the \mname(2)
+comparison, and per-task results are in \Cref{sec:app-experiments}.

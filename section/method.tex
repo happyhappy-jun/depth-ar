@@ -21,76 +21,80 @@ predict.
 \paragraph{Plain skipping is a zero-order predictor.} The conventional skip
 operator sets
 \begin{equation}
-\widehat{\dd}^{\,\mathrm{skip}}_\ell = 0 .
+\widehat{\dd}^{\,\mathrm{skip}}_\ell = 0 ,
 \label{eq:plainskip}
 \end{equation}
-It is the unique estimator that uses no information at all. That is what makes it
-cheap, and it is also what makes it wasteful: by the time the model reaches layer
-$\ell$ it has already computed $\dd_{\ell-1}, \dd_{\ell-2}, \dots$, all of which
-sit in the residual stream and all of which \cref{eq:plainskip} discards. A
-second, equally free estimator is available --- reuse the previous update,
-$\widehat{\dd}_\ell = \dd_{\ell-1}$ --- and we carry this \textbf{Copy Update}
-baseline throughout, because any gain \mname shows over it is a gain from
-\emph{fitting}, not merely from being nonzero.
+the unique estimator that uses no information at all. That is what makes it cheap,
+and it is also what makes it wasteful: by the time the model reaches layer $\ell$
+it has already computed $\dd_{\ell-1}, \dd_{\ell-2}, \dots$, all of which sit in
+the residual stream and all of which \cref{eq:plainskip} discards. A second, equally
+free estimator is available --- reuse the previous update, $\widehat{\dd}_\ell =
+\dd_{\ell-1}$ --- and we carry this \textbf{Copy Update} baseline throughout,
+because any gain \mname shows over it is a gain from \emph{fitting}, not merely
+from being nonzero.
 
-\paragraph{\mname: autoregression across depth.} We model the update sequence as
-locally autoregressive in depth. \mname(1) forecasts the missing update from its
-immediate predecessor with a single fitted scalar $\alpha_\ell$,
+\paragraph{\mname: per-channel autoregression across depth.} We model the update
+sequence as autoregressive in depth, with one coefficient per channel. Writing
+$\aal_\ell \in \mathbb{R}^{d}$ for the fitted coefficient vector,
+\begin{equation}
+\widehat{\dd}_\ell = \aal_\ell \odot \dd_{\ell-1},
+\qquad
+\widehat{\hh}_{\ell+1} = \hh_\ell + \aal_\ell \odot \dd_{\ell-1},
+\label{eq:diag}
+\end{equation}
+where $\odot$ is the elementwise product, broadcast over the $T$ token positions.
+Each channel $j$ has an independent closed-form least-squares solution,
+\begin{equation}
+a^{\star}_{\ell,j} =
+\frac{\sum_t \Delta_{\ell-1,tj}\,\Delta_{\ell,tj}}
+     {\sum_t \Delta_{\ell-1,tj}^{2} + \epsilon}.
+\label{eq:fit}
+\end{equation}
+Constraining every channel of $\aal_\ell$ to a common value gives the scalar
+predictor
 \begin{equation}
 \widehat{\dd}_\ell = \alpha_\ell \dd_{\ell-1},
 \qquad
-\widehat{\hh}_{\ell+1} = \hh_\ell + \alpha_\ell \dd_{\ell-1},
-\label{eq:ar1}
-\end{equation}
-and \mname(2) widens the window to two taps,
-\begin{equation}
-\widehat{\dd}_\ell = \alpha_\ell \dd_{\ell-1} + \beta_\ell \dd_{\ell-2}.
-\label{eq:ar2}
-\end{equation}
-The inductive bias is momentum: the model has been refining its representation in
-a consistent direction, and the next refinement most likely continues it. Note
-that $\alpha_\ell = 0$ recovers plain skipping exactly and $\alpha_\ell = 1$
-recovers Copy Update, so \mname strictly generalizes both and calibration can
-fall back to either when the data demand it.
-
-\paragraph{Closed-form calibration, no gradients.} Coefficients are fitted by
-least squares against the true update on a small unlabeled calibration set. For
-\mname(1) the solution is a ratio of Frobenius inner products,
-\begin{equation}
 \alpha^{\star}_\ell =
 \frac{\langle \dd_{\ell-1}, \dd_\ell \rangle_F}
      {\|\dd_{\ell-1}\|_F^2 + \epsilon},
-\label{eq:fit}
+\label{eq:ar1}
 \end{equation}
-and for \mname(2) the pair $(\alpha_\ell, \beta_\ell)$ solves a $2 \times 2$
-ridge system built from the Gram matrix of $\{\dd_{\ell-1}, \dd_{\ell-2}\}$. Both
-are obtained by streaming a few calibration sequences through the dense model
-once and accumulating scalar statistics in FP64: no hidden states are stored, no
-gradients are taken, and recalibrating an entire model costs a single forward
-pass over 16--\ph{32} sequences. Padding tokens are excluded from the
-accumulators.
+and setting $\aal_\ell = \bm{0}$ recovers plain skipping. \mname therefore
+generalizes both. We report the scalar predictor throughout as an ablation rather
+than a simplification: \Cref{sec:experiments} shows that the restriction to a
+single coefficient is not a minor loss of capacity but the difference between a
+method that repairs a skipped block and one that, at some layers, damages it
+further.
 
-\paragraph{Predictability is measurable before skipping.} The same statistics
-yield a held-out score that says, per layer, how much of the update a predictor
-explains:
+\paragraph{Closed-form calibration, no gradients.} Both estimators are fitted by
+streaming a small unlabeled calibration set through the dense model once and
+accumulating the sums in \cref{eq:fit} in FP64. No hidden states are stored, no
+gradients are taken, no labels are used, and recalibrating an entire model costs a
+single forward pass over 16--\ph{32} sequences. Padding tokens are excluded from
+the accumulators.
+
+\paragraph{Which layers to skip.} The natural companion to \cref{eq:fit} is the
+held-out fraction of update energy a predictor explains,
 \begin{equation}
 P_\ell = 1 -
 \frac{\sum \|\dd_\ell - \widehat{\dd}_\ell\|_2^2}
-     {\sum \|\dd_\ell\|_2^2}.
+     {\sum \|\dd_\ell\|_2^2},
 \label{eq:pscore}
 \end{equation}
-$P_\ell > 0$ means the predictor explains more update energy than plain skipping,
-and $P_\ell$ is exactly the fraction of that energy it recovers. Because $P_\ell$
-is computed from the dense model on unlabeled text, it is available \emph{before}
-any skipping decision is taken; we use it both to choose which layers to skip and
-to anticipate where skipping will succeed. Unless stated otherwise we skip the
-$k$ highest-$P_\ell$ layers subject to a non-adjacency constraint, so that no
-skipped block consumes a predicted rather than a real update.
+which is computable from the dense model on unlabeled text before any skipping
+decision is taken, and which is an obvious candidate for ranking layers. We
+evaluate it as such, alongside two selection rules that instead measure the effect
+of skipping directly on a small development set: ranking by lowest single-layer
+NLL damage, and ranking by the damage a predictor actually repairs. \Cref{sec:experiments}
+shows the choice between them matters more than the choice of predictor --- and
+that the cheap one is the wrong one.
 
-\paragraph{Cost.} \mname adds one or two scaled vector additions per skipped
-block: $O(Td)$ work against the $O(Td^2)$ the block itself would have cost, and
-$O(1)$ stored parameters per layer rather than the $O(d^2)$ of a fitted linear
-map. The predicted update is assembled from tensors already resident in the
-residual stream, so the only extra memory traffic is retaining $\dd_{\ell-1}$
-(and $\dd_{\ell-2}$ for \mname(2)) for one further layer. The block-compute
-reduction of skipping therefore survives essentially intact.
+\paragraph{Cost.} \mname stores a $d$-dimensional coefficient vector per skipped
+block ($d = \ph{896}$ on Qwen2.5-0.5B), against the $d^2$ parameters a dense
+boundary map between hidden states would require --- three orders of magnitude
+fewer. Inference cost is unchanged in order: one elementwise multiply and one add,
+$O(Td)$ work against the $O(Td^2)$ the block itself would have cost, on tensors
+already resident in the residual stream. The only additional memory traffic is
+retaining $\dd_{\ell-1}$ for one further layer. The block-compute reduction that
+motivates skipping therefore survives intact.

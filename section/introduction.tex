@@ -16,11 +16,11 @@ establishes that Transformers tolerate this surprisingly well: blocks in large
 models are highly redundant, and a well-chosen subset can be deleted with modest
 degradation \citep{men2024shortgpt, gromov2024unreasonable, fan2020reducing}.
 Almost all of this work asks the same question --- \emph{which} blocks to remove
---- and answers it with progressively better importance scores. Far less
-attention has gone to the operator that does the removing. When a block is
-skipped, its residual update is replaced by zero. That choice is never argued
-for; it is simply what ``removing a layer'' has come to mean. It is
-computationally convenient, and representationally wasteful.
+--- and answers it with progressively better importance scores. Far less attention
+has gone to the operator that does the removing. When a block is skipped, its
+residual update is replaced by zero. That choice is never argued for; it is simply
+what ``removing a layer'' has come to mean. It is computationally convenient, and
+representationally wasteful.
 
 A separate line of work, meanwhile, tells us that the residual stream is not a
 sequence of unrelated states but a trajectory. Residual networks behave like
@@ -31,8 +31,8 @@ iteratively refine a single evolving representation
 mapped to a nearby depth by a linear transformation \citep{din2023jump,
 belrose2023eliciting}. If depth is a trajectory, a block's update is not an
 isolated quantity: it is the next step along a path the model has already been
-walking for several layers --- and steps along a smooth path are predictable from
-the steps before them.
+walking, and steps along a smooth path should be predictable from the steps
+before them.
 
 \begin{center}
 \emph{How much of a skipped Transformer block's residual update \\ is predictable
@@ -43,30 +43,43 @@ cost?}
 We take this question literally. Writing the pre-norm update at layer $\ell$ as
 $\dd_\ell = F_\ell(\hh_\ell)$, so that $\hh_{\ell+1} = \hh_\ell + \dd_\ell$,
 plain skipping is precisely the estimator $\widehat{\dd}_\ell = 0$ --- a
-zero-order predictor that ignores every update the model has already computed.
-We instead treat $\dd_{\ell-1}, \dd_{\ell-2}, \dots$ as a short time series
-indexed by depth and fit an autoregressive model that forecasts $\dd_\ell$ from
-it. This is a strictly better-informed estimator, built from information already
-sitting in the residual stream at inference time, free of charge.
+zero-order predictor that ignores every update the model has already computed. We
+instead treat $\dd_{\ell-1}, \dd_{\ell-2}, \dots$ as a short series indexed by
+depth and fit an autoregressive model that forecasts $\dd_\ell$ from it, using
+information already sitting in the residual stream at inference time, free of
+charge.
 
-The empirical fact that makes this work is that consecutive residual updates are
-strongly aligned. Over substantial regions of the network --- concentrated in the
-middle layers --- a held-out linear forecast of $\dd_\ell$ from $\dd_{\ell-1}$
-explains a large fraction of that update's energy, and the layers where it does
-so are the layers where update prediction repairs the most skipping damage
-(\Cref{sec:experiments}). Transformer depth, in short, has momentum.
+The answer to the question is more interesting than a clean yes. Depth is
+\emph{not} the smooth forward trajectory the analogy suggests. Through the middle
+of Qwen2.5-0.5B, consecutive residual updates are mildly \emph{anti}-correlated:
+every fitted coefficient is negative across layers 4--16, and \ph{88}\% of the
+individual channels agree on that sign, so successive blocks there partially undo
+one another rather than continuing a path. Genuine depth-wise momentum exists, but
+it is confined to the final quarter of the stack. And the property that looks like
+the natural way to decide \emph{where} to skip --- how well a layer's update can be
+forecast --- turns out to be almost useless for that purpose: predictability and
+recoverability are statistically unrelated (\Cref{sec:experiments}).
 
 We introduce \textbf{\mname (Depth-wise AutoRegressive update prediction)}, which
-exploits that momentum to make skipping cheaper in quality without making it more
-expensive in compute. \mname contributes three things: (1) we show that residual
-updates are locally predictable across large portions of Transformer depth, and
-that this predictability is measurable \emph{before} any layer is skipped, from a
-tiny unlabeled calibration set; (2) we replace the zero-update assumption with a
-one- or two-tap autoregressive forecast whose entire fitted state is one or two
-scalars per skipped layer, obtained in closed form with no gradient training; and
-(3) we show that this dominates plain skipping at matched skipped layers, from
-0.5B to \topscale parameters. At four skipped blocks, \mname recovers \ph{62}\%
-of the accuracy plain skipping gives up --- \ph{1.3} points of average downstream
-accuracy lost against \ph{3.4} --- while adding only $O(Td)$ scaled vector
-additions and matching plain skipping's prefill latency to within \ph{2}\%. The
-zero-update assumption, it turns out, gives up quality for no compute in return.
+replaces the zero-update assumption with a closed-form per-channel forecast of the
+missing update, fitted on unlabeled text with no gradient training. \mname
+contributes three results. (1) \textbf{The zero-update assumption is unnecessarily
+destructive, but only a per-channel predictor exploits that.} A single global
+coefficient per layer --- the obvious first instantiation --- fails almost
+everywhere, and at some layers is actively harmful: at layer 3 of Qwen2.5-0.5B,
+substituting the scalar's prediction is markedly \emph{worse} than dropping the
+update outright. Granting the predictor one coefficient per channel, and relaxing
+nothing else, is what separates a method that works from one that does not; it
+costs $d$ scalars per skipped block and leaves inference at $O(Td)$. (2)
+\textbf{Predictability is not recoverability.} Held-out explained update energy
+$P_\ell$ --- the cheap, natural selection signal, computable from the dense model
+before any layer is skipped --- is uncorrelated with the damage a predictor
+actually repairs (Spearman \ph{$-0.015$}, $p=\ph{0.95}$, $n=\ph{22}$). Selecting
+the most predictable layers is not merely suboptimal but actively bad: at two
+skipped blocks it leaves the scalar predictor far \emph{worse} than plain skipping.
+Layer selection must be validated against recovery, which must be measured. (3)
+\textbf{Depth is anti-correlated before it is autoregressive}, as above --- a fact
+about Transformer depth that is independent of our method and that any future
+update-prediction scheme has to contend with. Selecting by measured recovery,
+\mname repairs up to \ph{24.7}\% of the language-modelling damage plain skipping
+causes at matched depth, against \ph{16.3}\% for the scalar predictor.
