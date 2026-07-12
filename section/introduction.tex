@@ -42,7 +42,7 @@ skipping is precisely the estimator $\widehat{\dd}_\ell = 0$, a zero-order predi
 ignores every update the model has already computed. We instead treat $\dd_{\ell-1},
 \dd_{\ell-2}, \dots$ as a short series indexed by depth and fit an autoregressive model
 that forecasts $\dd_\ell$ from it, using information already sitting in the residual
-stream at inference time and adding \phm{0.64}\% to prefill latency (7B, sequence length
+stream at inference time and adding 0.64\% to prefill latency (7B, sequence length
 512).
 
 Much of the missing update turns out to be recoverable. We introduce \textbf{\mname
@@ -51,9 +51,9 @@ with a closed-form per-channel forecast fitted on unlabeled text with no gradien
 training, and we report three results.
 
 \textbf{(1) The zero-update assumption is unnecessarily destructive, and a per-channel
-predictor exploits that.} \mname recovers \phm{4.6}\% to \phm{23.3}\% of the
+predictor exploits that.} \mname recovers 4.6\% to 23.3\% of the
 language-modelling damage that skipping causes at light budgets across Qwen2.5-0.5B, 1.5B and
-7B, and up to \phm{70.0}\% when layers are chosen to maximise recovery, at a $d$-dimensional
+7B, and up to 70.0\% when layers are chosen to maximise recovery, at a $d$-dimensional
 coefficient vector per skipped block and $O(Td)$ work. Getting it required discarding the
 obvious version of the idea: a single global coefficient per layer fails almost everywhere,
 and at layer 3 of Qwen2.5-0.5B substituting its prediction is \emph{worse} than dropping the
@@ -62,14 +62,14 @@ update outright.
 \textbf{(2) The downstream benefit scales with the damage skipping inflicts.} At light
 budgets, where plain skipping barely hurts, accuracy effects sit below the reproducibility
 floor of the evaluation itself. Where the damage is severe they are large and survive
-Bonferroni correction across all \phm{63} comparisons we run. This holds under the deployable,
-damage-based selection rule, not merely under an oracle: at \phm{28.6}\% of blocks skipped on
-Qwen2.5-7B, \mname answers \phm{89} more questions correctly out of \phm{900} than plain
-skipping ($z=\phm{4.31}$) and recovers \phm{38.1}\% of its language-modelling damage. It also
-holds under damage-seeking selection on Qwen2.5-1.5B (\phm{132} and \phm{90} answers). The
+Bonferroni correction across all 63 comparisons we run. This holds under the deployable,
+damage-based selection rule, not merely under an oracle: at 28.6\% of blocks skipped on
+Qwen2.5-7B, \mname answers 89 more questions correctly out of 900 than plain
+skipping ($z=4.31$) and recovers 38.1\% of its language-modelling damage. It also
+holds under damage-seeking selection on Qwen2.5-1.5B (132 and 90 answers). The
 rule is simple: prediction pays off in proportion to what skipping destroys.
 
 \textbf{(3) Predictability is not recoverability.} Held-out explained update energy $P_\ell$,
 the cheap signal this method appears to hand you for free, is uncorrelated with the damage a
-predictor actually repairs (Spearman \phm{$-0.015$}, $p=\phm{0.95}$, $n=\phm{22}$), so layers
+predictor actually repairs (Spearman $-0.015$, $p=0.95$, $n=22$), so layers
 must be selected against measured recovery, not predictability.

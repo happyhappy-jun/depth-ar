@@ -71,7 +71,7 @@ further.
 streaming a small unlabeled calibration set through the dense model once and
 accumulating the sums in \cref{eq:fit} in FP64. No hidden states are stored, no
 gradients are taken, no labels are used, and recalibrating an entire model costs a
-single forward pass over 16--\phm{32} sequences. Padding tokens are excluded from
+single forward pass over 16--32 sequences. Padding tokens are excluded from
 the accumulators.
 
 \paragraph{Which layers to skip.} The natural companion to \cref{eq:fit} is the
@@ -90,7 +90,7 @@ damage, and the damage a predictor actually repairs (\Cref{sec:app-selection}).
 predictor, and that the cheap one is the wrong one.
 
 \paragraph{Cost.} \mname stores a $d$-dimensional coefficient vector per skipped
-block ($d = \phm{896}$ on Qwen2.5-0.5B), three orders of magnitude fewer than the $d^2$
+block ($d = 896$ on Qwen2.5-0.5B), three orders of magnitude fewer than the $d^2$
 parameters a dense boundary map between hidden states would require. Inference cost is unchanged in order: one elementwise multiply and one add,
 $O(Td)$ work against the $O(Td^2)$ the block itself would have cost, on tensors
 already resident in the residual stream. The only additional memory traffic is

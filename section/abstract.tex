@@ -4,17 +4,17 @@ the operator it uses to do so is crude: it assumes the missing residual update i
 zero. That update is in fact partly predictable from the updates that precede it. We
 introduce \textbf{\mname (Depth-wise AutoRegressive update prediction)}, which replaces a
 skipped block with a closed-form autoregressive forecast of its residual update, fitted per
-channel on unlabeled text with no gradient training. \mname adds only \phm{0.64}\% to prefill
+channel on unlabeled text with no gradient training. \mname adds only 0.64\% to prefill
 latency, yet recovers a substantial share of the language-modelling loss that skipping
-destroys: \phm{4.6}\% to \phm{23.3}\% of the damage at light pruning budgets across
-Qwen2.5-0.5B, 1.5B and 7B, and up to \phm{70.0}\% when layers are chosen to maximise
+destroys: 4.6\% to 23.3\% of the damage at light pruning budgets across
+Qwen2.5-0.5B, 1.5B and 7B, and up to 70.0\% when layers are chosen to maximise
 recovery. Its benefit to downstream behaviour scales with the damage that skipping inflicts.
 At light budgets, where plain skipping barely hurts, the accuracy effects sit below the
 evaluation's own reproducibility floor. Where the damage is severe, the gains are large and
-survive Bonferroni correction across all \phm{63} comparisons we run: at \phm{28.6}\% of
+survive Bonferroni correction across all 63 comparisons we run: at 28.6\% of
 blocks skipped on Qwen2.5-7B, under the deployable damage-based selection rule, \mname
-answers \phm{89} more questions correctly out of \phm{900} than plain skipping
-($z=\phm{4.31}$) while recovering \phm{38.1}\% of its language-modelling damage. Prediction
+answers 89 more questions correctly out of 900 than plain skipping
+($z=4.31$) while recovering 38.1\% of its language-modelling damage. Prediction
 pays off in proportion to what skipping destroys. Getting this to work required discarding
 the obvious version of the idea: a single global coefficient per layer fails, and at some
 layers is worse than dropping the update outright; only a $d$-dimensional coefficient vector

@@ -8,7 +8,7 @@
 WikiText-103 \citep{merity2017pointer} and scored on a disjoint held-out split; no task
 data is used for calibration. We report NLL and accuracy on HellaSwag
 \citep{zellers2019hellaswag}, PIQA \citep{bisk2020piqa} and ARC-Easy
-\citep{clark2018think} (\phm{100} examples per task on 0.5B, \phm{300} on 1.5B and
+\citep{clark2018think} (100 examples per task on 0.5B, 300 on 1.5B and
 \topscale), and give accuracy deltas as absolute counts, since recovered-gap fractions
 divide by very small denominators. Skipped blocks are non-adjacent, and within a budget
 every predictor skips the \emph{identical} blocks, isolating the predictor from the
@@ -17,43 +17,43 @@ selection rule. Full protocol, hardware and precisions in \Cref{sec:app-protocol
 \paragraph{A single coefficient per layer is not enough.} \Cref{tab:selection} (\Cref{sec:app-selection}) reports the
 fraction of plain-skip NLL damage each predictor recovers under three rules for choosing
 which blocks to skip. The scalar predictor of \cref{eq:ar1} is not a mildly weaker \mname:
-under the cheap rule it is \emph{worse} than plain skipping, recovering \phm{$-0.745$} of
+under the cheap rule it is \emph{worse} than plain skipping, recovering $-0.745$ of
 the damage at $k=2$. One coefficient per channel, nothing else changed, turns that into
-\phm{$+0.053$}. \mname recovers more damage than every alternative under \emph{every} rule
+$+0.053$. \mname recovers more damage than every alternative under \emph{every} rule
 and both budgets, so it composes with whichever selection method a practitioner already
 uses. Copy Update is worse than plain skipping everywhere, so the benefit comes from
 \emph{fitting} the coefficients, not from injecting a nonzero update.
 
 \paragraph{At a matched budget, likelihood recovery grows with scale.} \Cref{tab:main} carries the comparison
 to downstream tasks. At the conservative, damage-based operating point, \mname recovers
-\phm{4.6}\% of the plain-skip language-modelling damage on 0.5B, \phm{10.3}\% on 1.5B and
-\phm{23.3}\% on 7B at $k=4$, the largest damage we repair anywhere in absolute terms
-(\phm{0.4034} nats). The trend is budget-specific: at $k=2$ recovery is flat to mildly
-declining with scale (\phm{8.4}\%, \phm{8.2}\%, \phm{7.3}\%), so we claim no general
+4.6\% of the plain-skip language-modelling damage on 0.5B, 10.3\% on 1.5B and
+23.3\% on 7B at $k=4$, the largest damage we repair anywhere in absolute terms
+(0.4034 nats). The trend is budget-specific: at $k=2$ recovery is flat to mildly
+declining with scale (8.4\%, 8.2\%, 7.3\%), so we claim no general
 scaling law. The scalar predictor recovers consistently less, and Copy Update is
 worse than not predicting at all.
 
 \paragraph{The downstream benefit scales with the damage skipping inflicts.} Accuracy is
 where the skip operator either matters or does not, and what decides which is not the
 selection rule but how much damage skipping does. At light budgets, where plain skipping
-barely hurts, no accuracy difference is significant at any scale (largest $z=\phm{1.18}$),
+barely hurts, no accuracy difference is significant at any scale (largest $z=1.18$),
 and the differences are smaller than the evaluation's own reproducibility floor. Where the
 damage is severe, the gains are large. Under the \emph{deployable} damage-based rule at
-\phm{28.6}\% of blocks skipped on Qwen2.5-7B, \mname answers \phm{89} more questions
-correctly out of \phm{900} than plain skipping ($z=\phm{4.31}$), recovering \phm{38.1}\% of
-the language-modelling damage and \phm{35.7}\% of the accuracy gap. Under damage-seeking
-selection on Qwen2.5-1.5B it answers \phm{132} and \phm{90} more ($z=\phm{6.45}$,
-$\phm{4.37}$). These are \phm{4} of \phm{63} comparisons and the only ones to survive
+28.6\% of blocks skipped on Qwen2.5-7B, \mname answers 89 more questions
+correctly out of 900 than plain skipping ($z=4.31$), recovering 38.1\% of
+the language-modelling damage and 35.7\% of the accuracy gap. Under damage-seeking
+selection on Qwen2.5-1.5B it answers 132 and 90 more ($z=6.45$,
+$4.37$). These are 4 of 63 comparisons and the only ones to survive
 Bonferroni correction. Prediction pays off in proportion to what skipping destroys.
 
-These are gains over a badly damaged baseline (\phm{61.7}\% average accuracy against a dense
-\phm{79.4}\%), not a claim that the compressed model matches the dense one, and the pattern
-has a limit: at \phm{42.9}\% skipped on 7B the depth-only predictor falls below plain skipping
+These are gains over a badly damaged baseline (61.7\% average accuracy against a dense
+79.4\%), not a claim that the compressed model matches the dense one, and the pattern
+has a limit: at 42.9\% skipped on 7B the depth-only predictor falls below plain skipping
 altogether, while the cross-token extension does not (\Cref{sec:app-pareto}).
 
 \paragraph{Predictability does not imply recoverability.} Across the 22 eligible layers of
 Qwen2.5-0.5B, held-out predictability $P_\ell$ and the damage a predictor actually repairs
-are statistically unrelated (Spearman \phm{$-0.015$}, $p=\phm{0.95}$; \Cref{fig:momentum}),
+are statistically unrelated (Spearman $-0.015$, $p=0.95$; \Cref{fig:momentum}),
 and choosing layers by $P_\ell$ is not merely suboptimal but actively harmful
 (\Cref{tab:selection}, top block). This matters because $P_\ell$ is exactly the signal the method
 appears to hand you for free. Accurate reconstruction in residual space is not the same
@@ -61,9 +61,9 @@ objective as preserving function, and the same blindness recurs when an energy-w
 criterion tunes the predictor itself (\Cref{sec:app-ridge}).
 
 \paragraph{The forecast is cheap, and it buys frontier position.} On Qwen2.5-7B at four
-skipped blocks, \mname adds \phm{0.64}\% \emph{prefill} latency over plain skipping at
-sequence length 512, retaining a \phm{1.141}$\times$ prefill speedup over the dense model
-(\phm{1.151}$\times$ at 2048) where plain skipping reaches \phm{1.148}$\times$
+skipped blocks, \mname adds 0.64\% \emph{prefill} latency over plain skipping at
+sequence length 512, retaining a 1.141$\times$ prefill speedup over the dense model
+(1.151$\times$ at 2048) where plain skipping reaches 1.148$\times$
 (\Cref{sec:app-latency}). The two methods sit at effectively the same point on the compute
 axis, so all of \mname's advantage is quality at that point (\Cref{sec:app-pareto}). We
 measure prefill latency at $k=4$ only and make no claim about end-to-end generation.
@@ -74,13 +74,13 @@ At \emph{conservative} budgets, where plain skipping already preserves most of t
 the likelihood \mname recovers does not register as a downstream accuracy gain. At $k \le 4$
 no accuracy difference is significant at any of the three scales, and more tellingly, those
 differences are smaller than the run-to-run variation of the evaluation itself: re-scoring an
-identical configuration under a different task batch shape moves up to \phm{4} of \phm{900}
+identical configuration under a different task batch shape moves up to 4 of 900
 answers (\Cref{sec:app-noise}). We claim no downstream improvement at those light budgets,
 and symmetrically no harm. Translating light-budget likelihood recovery into accuracy, and extending the scale trend to
 the Qwen3 family, are the natural next steps. We also leave open \emph{why} the per-channel predictor succeeds
 where the scalar fails (\Cref{sec:app-experiments}). One clue: a \textbf{cross-token}
 variant, which also reads the previous \emph{token}'s update from the preceding layer, turns
-layer 2, the one pathology no ridge could suppress, from a recovery of \phm{$-3.31$} into
-\phm{$+0.19$}, so that failure was missing information, not mis-regularisation. It does not
+layer 2, the one pathology no ridge could suppress, from a recovery of $-3.31$ into
+$+0.19$, so that failure was missing information, not mis-regularisation. It does not
 improve \mname at deployable layer sets; we report it as preliminary in
 \Cref{sec:app-crosstoken}.
