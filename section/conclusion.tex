@@ -4,8 +4,10 @@
 Plain layer skipping assumes a skipped block's residual update is zero. It is not: much of it
 is predictable from the updates that precede it, and \mname recovers a substantial share of
 the likelihood that skipping destroys, in closed form, at 0.64\% of prefill latency.
-Its benefit to downstream behaviour scales with the damage skipping inflicts. Where plain
+Across the Qwen2.5 family, its benefit to downstream behaviour scales with the damage
+skipping inflicts. Where plain
 skipping barely hurts, the accuracy effects lie below the evaluation's own noise floor; where
 it hurts badly, \mname recovers a large and statistically reliable share of what was lost,
-including under the deployable selection rule at scale. Prediction pays off in proportion to
-what skipping destroys.
+including under the deployable selection rule at scale. Prediction pays off in proportion to what
+skipping destroys, and a first test outside that family bounds the ordering rather than
+confirming it (\Cref{sec:app-qwen3}).

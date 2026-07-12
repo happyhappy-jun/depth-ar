@@ -59,7 +59,7 @@ obvious version of the idea: a single global coefficient per layer fails almost 
 and at layer 3 of Qwen2.5-0.5B substituting its prediction is \emph{worse} than dropping the
 update outright.
 
-\textbf{(2) The downstream benefit scales with the damage skipping inflicts.} At light
+\textbf{(2) Across Qwen2.5, the downstream benefit scales with the damage skipping inflicts.} At light
 budgets, where plain skipping barely hurts, accuracy effects sit below the reproducibility
 floor of the evaluation itself. Where the damage is severe they are large and survive
 Bonferroni correction across all 63 comparisons we run. This holds under the deployable,
@@ -67,7 +67,9 @@ damage-based selection rule, not merely under an oracle: at 28.6\% of blocks ski
 Qwen2.5-7B, \mname answers 89 more questions correctly out of 900 than plain
 skipping ($z=4.31$) and recovers 38.1\% of its language-modelling damage. It also
 holds under damage-seeking selection on Qwen2.5-1.5B (132 and 90 answers). The
-rule is simple: prediction pays off in proportion to what skipping destroys.
+rule is simple: prediction pays off in proportion to what skipping destroys. A first
+out-of-family test on Qwen3 bounds that ordering rather than confirming it
+(\Cref{sec:app-qwen3}).
 
 \textbf{(3) Predictability is not recoverability.} Held-out explained update energy $P_\ell$,
 the cheap signal this method appears to hand you for free, is uncorrelated with the damage a
