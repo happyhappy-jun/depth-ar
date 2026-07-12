@@ -333,11 +333,27 @@ one available.} Qwen3-1.7B is the \emph{most} damaged of the three cells (plain 
 0.61 nats) and it is the one where \mname recovers nothing at all. On our Qwen2.5 runs, damage
 of that size is where recovery is largest. Qwen3-4B is the least damaged (0.10 nats) and shows
 the small gain the ordering would predict, and 0.6B is consistent as well, so the failure is
-specific rather than total. We have no explanation for the 1.7B cell and we do not offer one.
-It is an out-of-sample counterexample to the ordering that organizes this paper, it was found
-by the first test we ran outside the family the ordering was built on, and it is reported here
-with that weight. The correlation of \Cref{sec:app-noise} should be read as what we said it
-was: a description of the runs we performed, not a law.
+specific rather than total.
+
+The exception has a measured mechanism. Each of the four layers selected at 1.7B repairs, on
+its own, to \emph{better than dense}: their post-repair NLL deltas are $-0.063$, $-0.044$,
+$-0.033$ and $-0.026$. Composed, the same four layers cost 0.61 nats that repair does not
+recover. Single-layer gains failed to compose. This is precisely the compounding failure our
+non-adjacency constraint (a gap of at least two surviving blocks between skipped ones) was
+designed to prevent, and it is observed here in spite of it. That partially rescues the damage
+ordering: what fails at 1.7B is composition, not the relation between damage and repair.
+Whether it rescues it enough is not something three cells can settle, and we do not claim it
+does. The correlation of \Cref{sec:app-noise} remains what we said it was: a description of the
+runs we performed, not a law.
+
+\paragraph{A note on ratios with vanishing denominators.} Recovery fractions are undefined when
+plain skipping does no damage. At 1.7B, several individual layers are \emph{better} skipped
+than kept (layer 12's removal improves NLL by 0.017), and a recovery fraction computed against
+that near-zero, wrong-signed denominator reads $-1.61$ while the repaired model is in fact
+0.044 better than dense. We therefore report post-repair NLL deltas, not recovery fractions,
+for any cell whose damage is non-positive. A ratio is only as meaningful as its denominator,
+and this is the second time in this work that a small denominator produced a large and empty
+number (\Cref{sec:app-noise}).
 
 \begin{table}[h]
 \centering
