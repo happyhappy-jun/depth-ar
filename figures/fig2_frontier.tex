@@ -1,0 +1,11 @@
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.95\linewidth]{figures/quality_depth_frontier.pdf}
+\caption{\textbf{Predicting missing updates dominates dropping them.} Quality
+against the fraction of skipped blocks, for Plain Skip and \mname at matched
+skipped-layer sets on Qwen2.5-\topscale. \mname traces a strictly better
+quality--depth frontier at every budget: the curves separate as soon as the first
+block is skipped and the gap widens with the budget, so the advantage compounds
+rather than washing out. Measured on a single NVIDIA RTX 3090 GPU.}
+\label{fig:frontier}
+\end{figure}

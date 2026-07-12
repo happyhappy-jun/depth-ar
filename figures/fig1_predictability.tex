@@ -1,0 +1,26 @@
+\begin{figure*}[t]
+\centering
+\begin{subfigure}{0.48\textwidth}
+\includegraphics[width=0.95\linewidth]{figures/predictability_profile.pdf}
+\caption{Predictability across depth}
+\label{fig:momentum-profile}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.48\textwidth}
+\includegraphics[width=0.95\linewidth]{figures/recovery_vs_p.pdf}
+\caption{Recovery vs.\ predictability}
+\label{fig:momentum-recovery}
+\end{subfigure}
+\caption{\textbf{Transformer depth has predictable local momentum.} \emph{Left:}
+held-out explained update energy $P_\ell$ (\cref{eq:pscore}) against normalized
+layer depth, for each model; markers indicate the layers selected for skipping.
+Predictability is concentrated in the middle of the network, and the profile has
+the same qualitative shape at every scale. \emph{Right:} for each layer, the
+fraction of single-layer plain-skip NLL damage that \mname recovers, plotted
+against that layer's $P_\ell$. Layers whose updates are predictable are the layers
+where update prediction repairs the most damage, so $P_\ell$ --- computable from
+the dense model on unlabeled text, before any skipping decision --- forecasts where
+skipping is safe. Measurements for 0.5B and 1.5B are made on an NVIDIA TITAN X
+(Pascal) GPU and for Qwen2.5-\topscale on a single NVIDIA RTX 3090 GPU.}
+\label{fig:momentum}
+\end{figure*}
