@@ -128,18 +128,18 @@ The per-task numbers behind \Cref{fig:dissociation} are given in \Cref{tab:main}
 Recovered-gap \emph{fractions} on accuracy divide by a Dense-minus-Plain-Skip denominator
 only tens of graded answers wide, and are correspondingly unstable. We therefore tested
 every \mname-versus-Plain-Skip accuracy comparison against the standard error of a
-difference of two proportions, and report absolute counts in the body. Of the \phm{41}
-comparisons, \phm{37} are not significant at the two-sided $95\%$ level. A $1$-SE band is
+difference of two proportions, and report absolute counts in the body. Of the \phm{63}
+comparisons, \phm{59} are not significant at the two-sided $95\%$ level. A $1$-SE band is
 not a significance test: a delta at $1.0$--$1.2$ SE has $p \approx 0.25$ and establishes
 nothing.
 
 Only \phm{4} comparisons are significant, and both survive Bonferroni correction over the
-family of \phm{41} tests actually performed ($\alpha/m = \phm{0.00122}$, $|z| \ge
-\phm{3.23}$): recovery-maximising selection on Qwen2.5-1.5B at $k=2$
+family of \phm{63} tests actually performed ($\alpha/m = \phm{0.00079}$, $|z| \ge
+\phm{3.35}$): recovery-maximising selection on Qwen2.5-1.5B at $k=2$
 ($+\phm{132}$ answers, $z=\phm{6.45}$) and $k=4$ ($+\phm{90}$, $z=\phm{4.37}$). Both are
 earned on models plain skipping has already destroyed. Correction matters here rather
-than being ceremonial: an uncorrected $95\%$ threshold over \phm{37} tests would expect
-about \phm{2.05} false positives by chance, so the uncorrected borderline case
+than being ceremonial: an uncorrected $95\%$ threshold over \phm{63} tests would expect
+about \phm{3.15} false positives by chance, so the uncorrected borderline case
 (0.5B, recovery-top, $k=2$, $z=\phm{1.95}$) cannot be claimed.
 
 \paragraph{A third source of uncertainty: the evaluation is not deterministic.} Binomial
@@ -158,18 +158,18 @@ floor, and our refusal to claim either an improvement or a regression there sits
 it.
 
 The Bonferroni survivors are unaffected, and we state the ratio rather than assert immunity.
-Four of \phm{41} comparisons survive correction: Qwen2.5-7B under damage-based selection at
+Four of \phm{63} comparisons survive correction: Qwen2.5-7B under damage-based selection at
 $k=8$ (\phm{89} answers, $z=\phm{4.31}$; and \phm{74} for the cross-token extension,
 $z=\phm{3.57}$), and Qwen2.5-1.5B under damage-seeking selection at $k=2$ and $k=4$
 (\phm{132} and \phm{90} answers, $z=\phm{6.45}$ and $\phm{4.37}$). The 1.5B survivors are
 \phm{33}$\times$ and \phm{22.5}$\times$ the measured jitter. No reordering of the evaluation
 batch produces effects of that size.
 
-\paragraph{The axis is damage, not selection rule.} Across all \phm{26} skipping runs in this
+\paragraph{The axis is damage, not selection rule.} Across all \phm{28} skipping runs in this
 paper, the recovery \mname achieves correlates with the damage plain skipping does: Spearman
-$\rho = \phm{0.813}$ ($p = \phm{4.4e-07}$) between plain-skip NLL damage and \mname's NLL
-gain, and $\rho = \phm{0.486}$ ($p = \phm{0.012}$) on the accuracy axis. \emph{We report this
-as descriptive ordering, not as a fitted law.} The \phm{26} runs are not independent: budgets
+$\rho = \phm{0.820}$ ($p = \phm{9.0e-08}$) between plain-skip NLL damage and \mname's NLL
+gain, and $\rho = \phm{0.468}$ ($p = \phm{0.012}$) on the accuracy axis. \emph{We report this
+as descriptive ordering, not as a fitted law.} The \phm{28} runs are not independent: budgets
 are nested, models are shared, and gain and damage share terms by construction, so the
 correlation coefficient should not be read as an effect size. The robust evidence is the
 enumeration rather than the statistic: the five largest gains all occur in high-damage runs,
@@ -250,6 +250,19 @@ What cross-token buys at the deployable sets is therefore not recovery but
 \emph{robustness}: its worst layer anywhere in the scan recovers \phm{$-0.027$}, against
 \phm{$-3.314$} for the depth-only predictor. It removes the failure mode rather than
 improving the typical case.
+
+\paragraph{A pre-registered test of the damage axis.} Cross-token selection provides a test of
+the damage ordering rather than another illustration of it. Before running it we predicted
+that selecting layers by cross-token recovery would produce high-damage sets, and that the
+damage axis therefore expected a large cross-token gain there. On likelihood the prediction
+holds: these are the most damaged sets in the paper (plain-skip NLL \phm{6.59} at $k=2$ and
+\phm{9.58} at $k=4$, against a dense \phm{2.76}), and the cross-token extension recovers
+\phm{66.8}\% and \phm{63.7}\% of that damage, its largest recoveries anywhere and roughly ten
+points above the depth-only predictor's \phm{56.3}\% and \phm{54.7}\%. Accuracy moves in the predicted direction as well, by
+\phm{16} to \phm{23} correct answers of \phm{300}, but at this sample size it is
+under-powered and we claim no significance for it. The prediction is confirmed on the
+likelihood axis and untested on the accuracy axis, and we say so rather than reading the
+accuracy counts as support.
 
 We report all of this as preliminary at one scale for the single-layer scan, and we make no
 claim that cross-token prediction improves \mname at a deployable operating point. Its value
