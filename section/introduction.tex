@@ -76,21 +76,18 @@ skipped blocks it leaves the scalar predictor far \emph{worse} than plain skippi
 Layer selection must be validated against recovery, which must be measured. (3)
 \textbf{Likelihood recovery does not transfer to behaviour.} \mname recovers a
 real fraction of the language-modelling damage that skipping causes at every scale
-and budget we test --- \phm{10.3}\% at the deployable operating point of
-Qwen2.5-1.5B, and more when layers are selected to maximise it. Downstream accuracy
-follows it only where the model is already ruined. Choosing layers to maximise
-recovery does produce a large, unambiguous accuracy gain --- \phm{132} additional
-correct answers out of \phm{900} on 1.5B --- but it does so on a layer set at which
-plain skipping has driven language-modelling loss to \phm{5.99} against a dense
-\phm{2.33}. At the operating point one would deploy, \mname's effect on accuracy is
-\emph{undetectable}: across both scales and all budgets, every delta lies within
-one binomial standard error of zero, ranging from \phm{$-6$} to $+\phm{5}$ answers,
-with several tasks exactly tied. We state these as counts, not as recovered-gap
-fractions, because the fractions divide by Dense-minus-Plain-Skip denominators as
-small as \phm{27} answers: five answers become ``$18.5\%$ of the accuracy gap
-recovered'', a figure that would sit comfortably in an abstract and means nothing.
-We therefore claim no downstream improvement at the deployable operating point ---
-and, symmetrically, no downstream harm. At these sample sizes there is nothing to
-claim in either direction, and that is itself the result.
+and budget we test --- \phm{23.3}\% at the deployable operating point of Qwen2.5-7B,
+and more when layers are selected to maximise it. Downstream accuracy does not follow. At the deployable operating point \mname shows
+\emph{no statistically significant accuracy gain at any of the three scales}: the largest
+delta we measure is $+\phm{22}$ correct answers out of \phm{900} on 7B, at
+$z=\phm{1.18}$. The only significant gains anywhere --- $+\phm{132}$ and $+\phm{90}$ of
+\phm{900} at $z=\phm{6.45}$ and $\phm{4.37}$, the only two of \phm{16} comparisons to
+survive Bonferroni correction --- arise where layers are chosen to maximise recovery, and
+there plain skipping has already driven loss to \phm{5.99}--\phm{7.31} against a dense
+\phm{2.33}. The behavioural benefit is real precisely where the model is already ruined.
+We report absolute counts rather than recovered-gap fractions throughout, because the
+fractions divide by Dense-minus-Plain-Skip denominators as small as \phm{27} answers:
+five answers become ``$18.5\%$ of the accuracy gap recovered'', a figure that would sit
+comfortably in an abstract and means nothing.
 
 

@@ -6,21 +6,21 @@ that precede it. We introduce \textbf{\mname (Depth-wise AutoRegressive update
 prediction)}, which replaces a skipped block with a closed-form autoregressive
 forecast of its residual update, fitted per channel on unlabeled text with no
 gradient training, at $O(Td)$ inference cost. \mname recovers a real and consistent
-fraction of the \emph{likelihood} that skipping destroys --- \phm{10.3}\% of the
-language-modelling damage at the deployable operating point of Qwen2.5-1.5B, and
-more when layers are chosen to maximise it. Getting even this required discarding
+fraction of the \emph{likelihood} that skipping destroys --- \phm{23.3}\% of the
+language-modelling damage at the deployable operating point of Qwen2.5-7B, and more
+when layers are chosen to maximise it. Getting even this required discarding
 the obvious version of the idea: a single global coefficient per layer fails, and
 at some layers is worse than dropping the update outright; only a $d$-dimensional
 coefficient vector works. But the recovery does not reach the model's
-\emph{behaviour}. \mname's benefit to behaviour is real, but it appears only where plain skipping has
-already destroyed the model: selecting layers to maximise recovery buys \phm{132}
-additional correct answers out of \phm{900} on Qwen2.5-1.5B --- at a
-language-modelling loss of \phm{5.99} against a dense \phm{2.33}, a model nobody
-would deploy. At the operating point one would actually deploy, the effect on
-accuracy is undetectable at our sample sizes: every delta, in either direction,
-falls within one binomial standard error (\phm{$-6$} to $+\phm{5}$ answers), and
-several tasks are exactly tied. We claim neither improvement nor harm there; we
-claim that a large and consistent likelihood recovery buys neither. The same
+\emph{behaviour}. At the deployable operating point, \mname shows no statistically
+significant downstream accuracy gain at any scale --- the largest delta we measure is
+$+\phm{22}$ correct answers of \phm{900} on 7B ($z=\phm{1.18}$). The only significant
+gains anywhere ($+\phm{132}$ and $+\phm{90}$ of \phm{900}, $z=\phm{6.45}$ and
+$\phm{4.37}$, both surviving Bonferroni correction over all \phm{16} comparisons) occur
+where layers are chosen to maximise recovery --- and there plain skipping has already
+driven language-modelling loss to \phm{5.99}--\phm{7.31} against a dense \phm{2.33}, a
+model nobody would deploy. The behavioural benefit is real exactly where the model is
+already ruined. The same
 dissociation appears
 three times over: held-out predictability is uncorrelated with the damage
 prediction repairs (Spearman \phm{$-0.015$}), an energy-weighted fit criterion

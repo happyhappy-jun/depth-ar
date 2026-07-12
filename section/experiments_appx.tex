@@ -105,20 +105,26 @@ The per-task numbers behind \Cref{fig:dissociation} are given in \Cref{tab:main}
 \subsection{Accuracy deltas, sampling noise, and ratio inflation}
 \label{sec:app-noise}
 
-Recovered-gap \emph{fractions} on accuracy are computed against a
-Dense-minus-Plain-Skip denominator that is only tens of graded answers wide, and are
-correspondingly unstable. We therefore audited every accuracy cell against the standard
-error of a difference of two proportions, and report absolute counts in the body. Of the
-\phm{12} \mname accuracy cells, \phm{8} fall within one standard error of zero. All
-\phm{6} cells under damage-based selection --- the deployable rule, at both scales and
-every budget --- are within noise, ranging from \phm{$-6$} to $+\phm{5}$ net answers,
-with several tasks exactly tied. The cells that are \emph{not} within noise are all
-under recovery-maximising selection at small $k$, where the accuracy gain is large and
-real (\phm{132} and \phm{90} net answers of \phm{900} on 1.5B) but the underlying model
-has already been destroyed by skipping. We apply this test symmetrically: a delta inside
-the noise band is discounted whichever direction it points, so we neither credit \mname
-with the $+18.5\%$ that five answers produce nor charge it with the $-6\%$ that four
-answers produce.
+Recovered-gap \emph{fractions} on accuracy divide by a Dense-minus-Plain-Skip denominator
+only tens of graded answers wide, and are correspondingly unstable. We therefore tested
+every \mname-versus-Plain-Skip accuracy comparison against the standard error of a
+difference of two proportions, and report absolute counts in the body. Of the \phm{16}
+comparisons, \phm{14} are not significant at the two-sided $95\%$ level. A $1$-SE band is
+not a significance test: a delta at $1.0$--$1.2$ SE has $p \approx 0.25$ and establishes
+nothing.
+
+Only \phm{2} comparisons are significant, and both survive Bonferroni correction over the
+family of \phm{16} tests actually performed ($\alpha/m = \phm{0.003125}$, $|z| \ge
+\phm{2.96}$): recovery-maximising selection on Qwen2.5-1.5B at $k=2$
+($+\phm{132}$ answers, $z=\phm{6.45}$) and $k=4$ ($+\phm{90}$, $z=\phm{4.37}$). Both are
+earned on models plain skipping has already destroyed. Correction matters here rather
+than being ceremonial: an uncorrected $95\%$ threshold over \phm{16} tests would expect
+about \phm{0.8} false positives by chance, so the uncorrected borderline case
+(0.5B, recovery-top, $k=2$, $z=\phm{1.95}$) cannot be claimed.
+
+We apply the test symmetrically. A delta inside the noise band is discounted whichever way
+it points, so we neither credit \mname with the $+18.5\%$ that five answers produce at
+$k=2$ on 1.5B, nor charge it with the $-6\%$ that four answers produce at $k=4$.
 
 \subsection{Layer selection}
 \label{sec:app-selection}

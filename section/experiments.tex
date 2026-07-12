@@ -53,31 +53,32 @@ unregularized coefficients that wreck the model.
 \Cref{fig:dissociation} carries the comparison to downstream tasks; the full
 per-task numbers are in \Cref{tab:main} (\Cref{sec:app-experiments}).
 \mname improves language-modelling loss over plain skipping at every scale and budget.
-Its effect on accuracy splits cleanly by selection rule. Choosing layers to
-\emph{maximise recovery} produces a large and unambiguous accuracy gain --- \phm{132}
-additional correct answers out of \phm{900} on 1.5B at $k=2$, and \phm{90} at $k=4$,
-both far outside sampling noise --- but that rule selects layers whose removal has
-already wrecked the model: plain-skip loss there is \phm{5.99} against a dense
-\phm{2.33}. The gain is real, and it is a gain over a baseline nobody would ship.
+Its effect on accuracy splits cleanly by selection rule, and in neither case is it what
+one would want. Choosing layers to \emph{maximise recovery} produces the only
+statistically significant accuracy gains we measure anywhere: $+\phm{132}$ correct
+answers of \phm{900} at $k=2$ on 1.5B ($z=\phm{6.45}$) and $+\phm{90}$ at $k=4$
+($z=\phm{4.37}$). These are the only \phm{2} of \phm{16} comparisons to survive
+Bonferroni correction, and they are earned on layer sets where plain skipping has already
+driven language-modelling loss to \phm{5.99}--\phm{7.31} against a dense \phm{2.33}. The
+gain is real, and it is a gain over a baseline nobody would ship.
 
-At the damage-based operating point one would actually deploy, the effect vanishes.
-Every accuracy delta we measure, at both scales and all budgets, lies within one
-binomial standard error of zero: from \phm{$-6$} to $+\phm{5}$ answers, with several
-tasks \emph{exactly tied}. We give counts rather than recovered-gap fractions because
-the fraction divides by a Dense-minus-Plain-Skip denominator only \phm{27} answers wide
-at $k=2$ on 1.5B, turning five answers --- one task tied --- into ``$18.5\%$ of the
-accuracy gap recovered''; the negative fractions are no better founded
+At the damage-based operating point one would actually deploy, no accuracy difference is
+significant at any of the three scales. The largest delta is $+\phm{22}$ answers of
+\phm{900} on 7B ($z=\phm{1.18}$); across all three scales and every budget the deltas
+run from \phm{$-6$} to $+\phm{22}$ answers, with several tasks \emph{exactly tied}. We
+give counts rather than recovered-gap fractions because the fraction divides by a
+Dense-minus-Plain-Skip denominator only \phm{27} answers wide at $k=2$ on 1.5B, turning
+five answers --- one task tied --- into ``$18.5\%$ of the accuracy gap recovered''
 (\Cref{sec:app-noise}). We therefore establish neither improvement nor regression in
-behaviour at the deployable point and claim neither.
+behaviour at the deployable point, and claim neither.
 
 So the two selection rules \emph{are} the dissociation. The rule that maximises measured
 recovery earns \mname's largest likelihood recovery anywhere (\phm{66.3}\%) and its only
-detectable accuracy gains --- on models whose absolute quality is unacceptable. The rule
-that keeps quality acceptable earns a real but modest likelihood recovery
-(\phm{10.3}\%) and no measurable accuracy effect at all. Recovery and functional repair
-agree only once the model is already ruined enough for there to be something obvious to
-repair. The depth-wise anti-correlation underlying this is quantified in
-\Cref{sec:app-anticorr}.
+significant accuracy gains --- on models whose absolute quality is unacceptable. The rule
+that keeps quality acceptable earns a real likelihood recovery (\phm{23.3}\% at 7B) and
+no significant accuracy effect at all. Recovery and functional repair agree only once the
+model is already ruined enough for there to be something obvious to repair. The
+depth-wise anti-correlation underlying this is quantified in \Cref{sec:app-anticorr}.
 
 \paragraph{The forecast is cheap; that is not the problem.} On Qwen2.5-1.5B at four
 skipped blocks, \mname adds \phm{0.23}\% \emph{prefill} latency over plain skipping at
