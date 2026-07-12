@@ -7,14 +7,18 @@ skipping is destructive, a large and statistically significant share of the down
 it costs, for 0.64\% added prefill latency. We introduce \textbf{\mname (Depth-wise
 AutoRegressive update prediction)}, which replaces a skipped block with a closed-form
 autoregressive forecast of its residual update, fitted per channel on unlabeled text with no
-gradient training. Across Qwen2.5 (0.5B to 7B), the benefit of repair scales with the damage skipping inflicts. At
+gradient training. Across Qwen2.5 (0.5B to 7B), likelihood recovery scales with the damage skipping inflicts
+(Spearman $0.82$), and significant downstream gains appear \emph{only} where that damage is
+severe. At
 light budgets, where plain skipping barely hurts, the accuracy effects sit below the
 evaluation's own measured reproducibility floor. Where the damage is severe, the gains are large
 and survive Bonferroni correction across all 63 comparisons we run: at 28.6\% of blocks skipped
 on Qwen2.5-7B, under the deployable damage-based selection rule, \mname answers 89 more
 questions correctly out of 900 than plain skipping ($z=4.31$) while recovering 38.1\% of its
-language-modelling damage. Prediction pays off in proportion to what skipping destroys, an
-ordering a first out-of-family test on Qwen3 bounds rather than confirms. Getting this to work
+language-modelling damage. Every significant accuracy gain we measure occurs where plain skipping costs at least 27.7
+accuracy points: severe damage is necessary for repair to pay off downstream, though not
+sufficient. Repair pays off where pruning bites, an ordering a first out-of-family test on Qwen3
+bounds rather than confirms. Getting this to work
 required discarding the obvious version of the idea: a single global coefficient per layer
 fails, and at some layers is worse than dropping the update outright.
 \end{abstract}

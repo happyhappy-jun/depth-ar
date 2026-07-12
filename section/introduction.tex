@@ -56,7 +56,8 @@ and show that the obvious scalar version of the idea fails, and is at some layer
 dropping the update outright. (2) \textbf{A cross-token extension}, which also reads the previous
 token's update from the preceding layer, and which repairs the one layer no amount of
 regularisation could. (3) \textbf{Damage proportionality}: the benefit of repair scales with the
-damage that skipping inflicts, so prediction pays off in proportion to what skipping destroys,
+damage skipping inflicts on the likelihood axis, and significant downstream gains appear only
+where that damage is severe,
 an ordering we then bound with the first out-of-family test of it. (4) \textbf{A measured noise
 floor} for multiple-choice evaluation: re-scoring an identical configuration under a different
 batch shape moves the score, by as much as several of the effects reported in this area.
