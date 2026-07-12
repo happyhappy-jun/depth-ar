@@ -28,8 +28,8 @@ the unique estimator that uses no information at all. That is what makes it chea
 and it is also what makes it wasteful: by the time the model reaches layer $\ell$
 it has already computed $\dd_{\ell-1}, \dd_{\ell-2}, \dots$, all of which sit in
 the residual stream and all of which \cref{eq:plainskip} discards. A second, equally
-fitting-free estimator is available --- reuse the previous update,
-$\widehat{\dd}_\ell = \dd_{\ell-1}$ --- and we carry this \textbf{Copy Update} baseline throughout,
+fitting-free estimator is available: reuse the previous update,
+$\widehat{\dd}_\ell = \dd_{\ell-1}$. and we carry this \textbf{Copy Update} baseline throughout,
 because any gain \mname shows over it is a gain from \emph{fitting}, not merely
 from being nonzero.
 
@@ -84,15 +84,14 @@ P_\ell = 1 -
 \end{equation}
 computable from the dense model on unlabeled text before any skipping decision is taken,
 and an obvious candidate for ranking layers. We evaluate it against two rules that instead
-measure the effect of skipping directly on a development set --- lowest single-layer NLL
+measure the effect of skipping directly on a development set, lowest single-layer NLL
 damage, and the damage a predictor actually repairs (\Cref{sec:app-selection}).
 \Cref{sec:experiments} shows the choice between them matters more than the choice of
 predictor, and that the cheap one is the wrong one.
 
 \paragraph{Cost.} \mname stores a $d$-dimensional coefficient vector per skipped
-block ($d = \phm{896}$ on Qwen2.5-0.5B), against the $d^2$ parameters a dense
-boundary map between hidden states would require --- three orders of magnitude
-fewer. Inference cost is unchanged in order: one elementwise multiply and one add,
+block ($d = \phm{896}$ on Qwen2.5-0.5B), three orders of magnitude fewer than the $d^2$
+parameters a dense boundary map between hidden states would require. Inference cost is unchanged in order: one elementwise multiply and one add,
 $O(Td)$ work against the $O(Td^2)$ the block itself would have cost, on tensors
 already resident in the residual stream. The only additional memory traffic is
 retaining $\dd_{\ell-1}$ for one further layer. The block-compute reduction that

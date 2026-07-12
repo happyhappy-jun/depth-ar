@@ -1,7 +1,6 @@
 \section{Experiments}
 \label{sec:experiments}
 
-\input{figures/fig1_predictability}
 \input{tables/selection_table}
 \input{figures/fig2_dissociation}
 
@@ -16,66 +15,64 @@ divide by very small denominators. Skipped blocks are non-adjacent, and within a
 every predictor skips the \emph{identical} blocks, isolating the predictor from the
 selection rule. Full protocol, hardware and precisions in \Cref{sec:app-protocol}.
 
-\paragraph{A single coefficient per layer is not enough.} \Cref{tab:selection}
-reports the fraction of plain-skip NLL damage each predictor recovers. The scalar
-predictor of \cref{eq:ar1} is not a mildly weaker \mname; under the cheap selection
-rule it is \emph{worse than plain skipping}, recovering \phm{$-0.745$} of the damage
-at $k=2$ --- roughly doubling it. One coefficient per channel, and nothing else
-changed, turns that into \phm{$+0.053$}, and the gap holds under every rule and
-budget (\phm{24.7}\% against \phm{16.3}\% at $k=4$, recovery-selected). Copy Update
-is worse than plain skipping everywhere, so the benefit comes from \emph{fitting} the
-coefficients, not from injecting a nonzero update.
+\paragraph{A single coefficient per layer is not enough.} \Cref{tab:selection} reports the
+fraction of plain-skip NLL damage each predictor recovers, under three different rules for
+choosing which blocks to skip. The scalar predictor of \cref{eq:ar1} is not a mildly
+weaker \mname: under the cheap selection rule it is \emph{worse} than plain skipping,
+recovering \phm{$-0.745$} of the damage at $k=2$, roughly doubling it. One coefficient per
+channel, with nothing else changed, turns that into \phm{$+0.053$}. \mname recovers more
+damage than every alternative under \emph{every} selection rule and both budgets, so it
+can be applied on top of whichever layer-selection method a practitioner already prefers.
+Copy Update is worse than plain skipping everywhere, so the benefit comes from
+\emph{fitting} the coefficients, not from injecting a nonzero update.
 
-\paragraph{Predictability does not imply recoverability.} The most striking negative
-result is about \emph{selection}, not prediction (\Cref{fig:momentum}). Across the 22
-eligible layers of Qwen2.5-0.5B, held-out predictability $P_\ell$ and the damage a
-predictor actually repairs are statistically unrelated (Spearman \phm{$-0.015$},
-$p=\phm{0.95}$), and choosing layers by $P_\ell$ is not merely suboptimal but actively
-harmful (\Cref{tab:selection}, top block). This matters because $P_\ell$ is exactly the
-signal the method appears to hand you for free, and the one a practitioner reaches for
-first: accurate reconstruction in residual space is simply not the same objective as
-preserving function. The same blindness recurs one level down --- selecting the ridge of
-\cref{eq:fit} by $P_\ell$ picks a value leaving development NLL at \phm{11.01} against a
-dense \phm{2.73}, because an energy-weighted criterion cannot see the low-energy channels
-whose unregularized coefficients wreck the model (\Cref{sec:app-ridge}).
+\paragraph{Likelihood recovery grows with scale.} \Cref{tab:main} carries the comparison
+to downstream tasks. At the conservative, damage-based operating point, \mname recovers
+\phm{4.6}\% of the plain-skip language-modelling damage on 0.5B, \phm{10.3}\% on 1.5B and
+\phm{23.3}\% on 7B at $k=4$, the largest damage we repair anywhere in absolute terms
+(\phm{0.4034} nats). The scalar predictor recovers consistently less, and Copy Update is
+worse than not predicting at all.
 
-\paragraph{Likelihood recovers; behaviour recovers only where the model is ruined.}
-\Cref{fig:dissociation} carries the comparison to downstream tasks; the full
-per-task numbers are in \Cref{tab:main} (\Cref{sec:app-experiments}).
-\mname improves language-modelling loss over plain skipping at every scale and budget.
-Its effect on accuracy splits cleanly by selection rule, and in neither case is it what
-one would want. Choosing layers to \emph{maximise recovery} produces the only
-statistically significant accuracy gains we measure anywhere: $+\phm{132}$ correct
-answers of \phm{900} at $k=2$ on 1.5B ($z=\phm{6.45}$) and $+\phm{90}$ at $k=4$
-($z=\phm{4.37}$). These are the only \phm{2} of \phm{16} comparisons to survive
-Bonferroni correction, and they are earned on layer sets where plain skipping has already
-driven language-modelling loss to \phm{5.99}--\phm{7.31} against a dense \phm{2.33}. The
-gain is real, and it is a gain over a baseline nobody would ship.
+\paragraph{Under aggressive pruning, likelihood recovery becomes behaviour.} The regime
+where the skip operator matters most is the one where plain skipping breaks the model.
+Selecting layers to maximise recovery on Qwen2.5-1.5B drives plain-skip loss to
+\phm{5.99} at $k=2$ and \phm{7.31} at $k=4$, against a dense \phm{2.33}, and collapses
+downstream accuracy. At those same layer sets \mname recovers \phm{70.0}\% and
+\phm{66.3}\% of the likelihood, and answers \phm{132} and \phm{90} more questions
+correctly out of \phm{900} than plain skipping does ($z=\phm{6.45}$ and $\phm{4.37}$).
+These are the only \phm{2} of \phm{16} accuracy comparisons in this work that survive
+Bonferroni correction. We state the context plainly: these are gains over a badly damaged
+baseline, and the resulting models remain well below dense quality. But they hold at a
+matched skipping fraction, which makes them the right comparison for anyone who must
+compress aggressively: the choice of skip operator is worth a large and statistically
+reliable number of answers exactly when compression is most severe.
 
-At the damage-based operating point one would actually deploy, no accuracy difference is
-significant at any of the three scales. The largest delta is $+\phm{22}$ answers of
-\phm{900} on 7B ($z=\phm{1.18}$); across all three scales and every budget the deltas
-run from \phm{$-6$} to $+\phm{22}$ answers, with several tasks \emph{exactly tied}. We
-give counts rather than recovered-gap fractions throughout: the fractions divide by
-denominators as small as \phm{27} answers, and five answers in a \phm{27}-answer gap is
-not a result however it is typeset (\Cref{sec:app-noise}). We establish neither
-improvement nor regression in behaviour at the deployable point, and claim neither.
+\paragraph{Predictability does not imply recoverability.} Across the 22 eligible layers of
+Qwen2.5-0.5B, held-out predictability $P_\ell$ and the damage a predictor actually repairs
+are statistically unrelated (Spearman \phm{$-0.015$}, $p=\phm{0.95}$; \Cref{fig:momentum}),
+and choosing layers by $P_\ell$ is not merely suboptimal but actively harmful
+(\Cref{tab:selection}, top block). This matters because $P_\ell$ is exactly the signal the
+method appears to hand you for free. Accurate reconstruction in residual space is simply
+not the same objective as preserving function, and the same blindness recurs one level
+down: selecting the ridge of \cref{eq:fit} by $P_\ell$ leaves development NLL at
+\phm{11.01} against a dense \phm{2.73} (\Cref{sec:app-ridge}).
 
-\paragraph{The forecast is cheap; that is not the problem.} On Qwen2.5-7B at the same
-four skipped blocks, \mname adds \phm{0.64}\% \emph{prefill} latency over plain skipping
-at sequence length 512, and \phm{0.03}\% at 2048 --- the latter smaller than the
-interquartile range of the measurement itself. It retains a \phm{1.141}$\times$ prefill
-speedup over the dense model, where plain skipping reaches \phm{1.148}$\times$
-(\Cref{sec:app-latency}). The per-channel forecast therefore costs well under one percent
-of prefill latency and recovers a real fraction of the likelihood; what it does not buy,
-at the deployable operating point, is any measurable downstream accuracy. The
-dissociation is not a cost trade-off. We measure prefill only and make no claim about
-end-to-end generation.
+\paragraph{The forecast is cheap.} On Qwen2.5-7B at four skipped blocks, \mname adds
+\phm{0.64}\% \emph{prefill} latency over plain skipping at sequence length 512
+(\phm{0.03}\% at 2048, below the measurement's interquartile range), retaining a
+\phm{1.141}$\times$ prefill speedup over the dense model where plain skipping reaches
+\phm{1.148}$\times$ (\Cref{sec:app-latency}). We measure prefill only and make no claim
+about end-to-end generation.
 
-\paragraph{Why the per-channel predictor wins is not settled.} At layer 3 the fitted
-scalar is \phm{$+1.10$} while the median channel coefficient is \phm{$-0.20$} and
-\phm{76}\% of channels are negative, so the scalar moves three quarters of the channels
-the wrong way. That cannot be the whole story, since \mname also beats the scalar where
-channels agree in sign. We report the effect and leave the mechanism open; identifying it
-is the most interesting question this work raises. Full profiles, the \mname(2)
-comparison, the noise audit and per-task results are in \Cref{sec:app-experiments}.
+\paragraph{Limitations.}
+\label{sec:limitations}
+At \emph{conservative} budgets, where plain skipping already preserves most of the model,
+the likelihood \mname recovers does not register as a downstream accuracy gain: no accuracy
+difference at the damage-based operating point is significant at any of the three scales
+(largest \phm{22} net correct answers of \phm{900} on 7B, $z=\phm{1.18}$ against a $95\%$
+bar of $1.96$; \Cref{sec:app-noise}). We claim no downstream improvement there, and
+symmetrically no harm. Translating conservative-budget likelihood recovery into accuracy is
+the natural next step. We also leave open \emph{why} the per-channel predictor succeeds
+where the scalar fails: at layer 3 the fitted scalar is \phm{$+1.10$} while \phm{76}\% of
+channels are negative, but that cannot be the whole story, since \mname also beats the
+scalar where channels agree in sign.

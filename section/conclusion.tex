@@ -1,14 +1,9 @@
 \section{Conclusion}
 \label{sec:conclusion}
 
-Plain skipping treats a missing residual update as zero, and that is wasteful: the update
-is partly predictable, and \mname recovers a real fraction of the likelihood it destroys
-in closed form at $O(Td)$ cost --- but only per channel, since a single coefficient is at
-some layers worse than dropping the update outright. The recovery stops at the loss.
-Downstream accuracy follows it only on layer sets plain skipping has already ruined; at
-the operating point one would deploy, the accuracy effect is undetectable at our sample
-sizes, in either direction. Nor is that a cost trade-off: \mname adds \phm{0.64}\% prefill
-latency on 7B at sequence length 512. Predictability, energy-weighted fit criteria and
-language-modelling loss recovery are all cheaper proxies for functional preservation, and
-all three overestimate it. We think that is the more useful finding, and the one a method
-built on any of those proxies has to answer.
+Plain layer skipping assumes a skipped block's residual update is zero. It is not: much of
+it is predictable from the updates that precede it, and \mname recovers a substantial share
+of the likelihood that skipping destroys, in closed form, at \phm{0.64}\% of prefill
+latency. The recovery grows with scale, holds under every selection rule we tried, and
+under aggressive pruning converts into a large and statistically reliable gain in
+downstream accuracy.

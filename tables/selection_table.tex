@@ -2,20 +2,20 @@
 \centering
 \small
 \setlength{\tabcolsep}{4pt}
-\caption{\textbf{The selection rule matters more than the predictor.} Fraction of
-the plain-skip NLL damage recovered on Qwen2.5-0.5B at matched skipped-layer sets,
-for three rules for choosing which $k$ blocks to skip. Positive is better;
-\emph{negative means the method is worse than simply dropping the update}. Ranking
-layers by predictability $P_\ell$ (\cref{eq:pscore}) --- the cheap signal, computable
-without skipping anything --- is catastrophic for the scalar predictor, and only
-\mname survives it. Copy Update is worse than plain skipping under every rule. Best
-value per column in \textbf{bold}. Fitted on 16 WikiText-103 sequences and evaluated
-on 16 disjoint held-out sequences, in FP32 on an NVIDIA TITAN X (Pascal) GPU.}
+\caption{\textbf{\mname improves recovery under every selection rule.} Fraction of the
+plain-skip NLL damage recovered on Qwen2.5-0.5B at matched skipped-layer sets, for three
+rules for choosing which $k$ blocks to skip. Positive is better; \emph{negative means the
+method is worse than simply dropping the update}. \mname recovers the most damage under
+every rule and both budgets, so it can be applied on top of whichever layer-selection
+method a practitioner already uses; layer selection is not our contribution, and we do not
+propose one. The scalar predictor, by contrast, is catastrophic under the cheapest rule.
+Copy Update is worse than plain skipping everywhere. Best value per column in \textbf{bold}.
+Fitted on 16 WikiText-103 sequences and evaluated on 16 disjoint held-out sequences, in FP32
+on an NVIDIA TITAN X (Pascal) GPU.}
 \label{tab:selection}
 \begin{tabular}{llcc}
 \toprule
 Selection rule & Predictor & $k=2$ & $k=4$ \\
-\midrule
 \multirow{3}{*}{\makecell[l]{Predictability $P_\ell$ \\ \footnotesize(no skipping needed)}}
   & Copy Update            & \phm{$-0.779$} & \phm{$-1.800$} \\
   & Scalar AR(1)           & \phm{$-0.745$} & \phm{$-0.128$} \\

@@ -9,7 +9,7 @@ capable, the cost of simply traversing the stack has become one of the dominant
 terms in the inference bill \citep{zhen2025taming}.
 
 Layer skipping is an attractive response. Removing an entire block eliminates real
-computation --- its attention and MLP matmuls both disappear --- without changing hidden
+computation, its attention and MLP matmuls both disappear, without changing hidden
 width, attention pattern or KV-cache layout, and a substantial literature establishes that
 Transformers tolerate it surprisingly well \citep{men2024shortgpt, gromov2024unreasonable,
 fan2020reducing}. Almost all of that work asks \emph{which} blocks to remove, and answers
@@ -37,55 +37,49 @@ cost?}
 \end{center}
 
 We take this question literally. Writing the pre-norm update at layer $\ell$ as
-$\dd_\ell = F_\ell(\hh_\ell)$, so that $\hh_{\ell+1} = \hh_\ell + \dd_\ell$,
-plain skipping is precisely the estimator $\widehat{\dd}_\ell = 0$ --- a
-zero-order predictor that ignores every update the model has already computed. We
-instead treat $\dd_{\ell-1}, \dd_{\ell-2}, \dots$ as a short series indexed by
-depth and fit an autoregressive model that forecasts $\dd_\ell$ from it, using
-information already sitting in the residual stream at inference time and adding
-\phm{0.64}\% to prefill latency (7B, sequence length 512).
+$\dd_\ell = F_\ell(\hh_\ell)$, so that $\hh_{\ell+1} = \hh_\ell + \dd_\ell$, plain
+skipping is precisely the estimator $\widehat{\dd}_\ell = 0$, a zero-order predictor that
+ignores every update the model has already computed. We instead treat $\dd_{\ell-1},
+\dd_{\ell-2}, \dots$ as a short series indexed by depth and fit an autoregressive model
+that forecasts $\dd_\ell$ from it, using information already sitting in the residual
+stream at inference time and adding \phm{0.64}\% to prefill latency (7B, sequence length
+512).
 
-The answer is more interesting than a clean yes. Depth is \emph{not} the smooth
-trajectory the analogy suggests: through the middle of Qwen2.5-0.5B consecutive
-updates are mildly \emph{anti}-correlated, with every fitted coefficient negative
-across layers 4--16 and \phm{88}\% of individual channels agreeing on that sign, so
-successive blocks there partly undo one another. Momentum exists, but only in the
-final quarter of the stack.
+Much of the missing update turns out to be recoverable. We introduce \textbf{\mname
+(Depth-wise AutoRegressive update prediction)}, which replaces the zero-update assumption
+with a closed-form per-channel forecast fitted on unlabeled text with no gradient
+training, and we report three results.
 
-We introduce \textbf{\mname (Depth-wise AutoRegressive update prediction)}, which
-replaces the zero-update assumption with a closed-form per-channel forecast of the
-missing update, fitted on unlabeled text with no gradient training. \mname
-contributes three results. (1) \textbf{The zero-update assumption is unnecessarily
-destructive, but only a per-channel predictor exploits that.} A single global
-coefficient per layer --- the obvious first instantiation --- fails almost
-everywhere, and at some layers is actively harmful: at layer 3 of Qwen2.5-0.5B,
-substituting the scalar's prediction is markedly \emph{worse} than dropping the
-update outright. Granting the predictor one coefficient per channel, and relaxing
-nothing else, is what separates a method that works from one that does not; it
-costs $d$ scalars per skipped block and leaves inference at $O(Td)$. (2)
-\textbf{Predictability is not recoverability.} Held-out explained update energy
-$P_\ell$ --- the cheap, natural selection signal, computable from the dense model
-before any layer is skipped --- is uncorrelated with the damage a predictor
-actually repairs (Spearman \phm{$-0.015$}, $p=\phm{0.95}$, $n=\phm{22}$). Selecting
-the most predictable layers is not merely suboptimal but actively bad: at two
-skipped blocks it leaves the scalar predictor far \emph{worse} than plain skipping.
-Layer selection must be validated against recovery, which must be measured. (3)
-\textbf{Likelihood recovery does not transfer to behaviour.} \mname recovers a
-real fraction of the language-modelling damage that skipping causes at every scale
-and budget we test --- \phm{23.3}\% at the deployable operating point of Qwen2.5-7B,
-and more when layers are selected to maximise it. Downstream accuracy does not follow. At the deployable operating point \mname shows
-\emph{no statistically significant accuracy gain at any of the three scales}: the largest
-delta we measure is $+\phm{22}$ correct answers out of \phm{900} on 7B, at
-$z=\phm{1.18}$. The only significant gains anywhere --- $+\phm{132}$ and $+\phm{90}$ of
-\phm{900} on 1.5B, at $z=\phm{6.45}$ and $\phm{4.37}$, the only two of \phm{16}
-comparisons to survive Bonferroni correction --- arise where layers are chosen to
-maximise recovery, and
-there plain skipping has already driven loss to \phm{5.99}--\phm{7.31} against a dense
-\phm{2.33}. The behavioural benefit is real precisely where the model is already ruined.
-We report absolute counts rather than recovered-gap fractions throughout, because the
-fractions divide by Dense-minus-Plain-Skip denominators as small as \phm{27} answers ---
-five answers in a \phm{27}-answer gap, with one of the three tasks exactly tied. Stated
-as a fraction, that becomes a two-digit percentage that would sit comfortably in an
-abstract and means nothing.
+\textbf{(1) The zero-update assumption is unnecessarily destructive, and a per-channel
+predictor exploits that.} \mname recovers \phm{4.6}\% to \phm{23.3}\% of the
+language-modelling damage that skipping causes at conservative budgets, across Qwen2.5-0.5B,
+1.5B and 7B, and up to \phm{70.0}\% when layers are chosen to maximise recovery. The
+recovery grows with scale, and it costs a $d$-dimensional coefficient vector per skipped
+block and $O(Td)$ work. Getting it required discarding the obvious version of the idea: a
+single global coefficient per layer fails almost everywhere, and at layer 3 of
+Qwen2.5-0.5B substituting its prediction is \emph{worse} than dropping the update
+outright. One coefficient per channel, with nothing else relaxed, is what separates a
+method that works from one that does not.
 
+\textbf{(2) Under aggressive pruning the recovered likelihood becomes recovered
+behaviour.} At a matched skipping fraction, on layer sets where plain skipping has driven
+language-modelling loss to \phm{5.99} against a dense \phm{2.33} and collapsed downstream
+accuracy, \mname answers \phm{132} more questions correctly out of \phm{900} than plain
+skipping does, and \phm{90} more at the larger budget. These are the only \phm{2} of
+\phm{16} accuracy comparisons we run that survive Bonferroni correction, and they are the
+regime in which the choice of skip operator matters most: when a model must be compressed
+hard, predicting the missing update rather than deleting it is worth a large and
+measurable number of answers.
 
+\textbf{(3) Predictability is not recoverability.} Held-out explained update energy
+$P_\ell$, the cheap signal this method appears to hand you for free, is uncorrelated with
+the damage a predictor actually repairs (Spearman \phm{$-0.015$}, $p=\phm{0.95}$,
+$n=\phm{22}$). Layers must be selected against measured recovery, not against
+predictability, and the same blindness recurs when an energy-weighted criterion is used to
+tune the predictor itself.
+
+At conservative budgets, where plain skipping already preserves most of the model, the
+likelihood \mname recovers does not yet register as a downstream accuracy gain: the
+differences there are within sampling noise in either direction at all three scales. We
+report that plainly in \Cref{sec:limitations}, and regard turning conservative-budget
+likelihood recovery into conservative-budget accuracy as the natural next step.

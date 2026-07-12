@@ -70,7 +70,7 @@ not measure here.
 We also evaluated a two-tap variant, $\widehat{\dd}_\ell = \alpha_\ell \dd_{\ell-1}
 + \beta_\ell \dd_{\ell-2}$, fitting $(\alpha_\ell, \beta_\ell)$ through a
 $2\times2$ ridge system. Averaged over the eligible layers of Qwen2.5-0.5B it
-improves single-layer recovery over the one-tap scalar by \phm{$+0.0009$} --- that
+improves single-layer recovery over the one-tap scalar by \phm{$+0.0009$}, that
 is, not at all. The information a second tap adds is negligible next to the
 information a second \emph{channel} adds, which is the point of \cref{eq:diag}: the
 useful axis of capacity here is across the hidden width, not back along depth. We
@@ -86,7 +86,7 @@ Qwen2.5-0.5B every fitted scalar coefficient is negative (layers 4--16, \phm{13}
 \phm{88}\% of the individual per-channel coefficients in that region are also
 negative, with a median of \phm{$-0.19$}. Successive blocks there partially
 \emph{undo} one another. Positive depth-wise momentum appears only in the last
-quarter of the stack, and it is there --- together with the earliest layers --- that
+quarter of the stack, and it is there, together with the earliest layers, that
 the recoverable damage is concentrated.
 
 \subsection{The ridge coefficient}
@@ -103,9 +103,12 @@ at every strength tested (\phm{$-3.68$} at $\epsilon=0.01$, still \phm{$-2.42$} 
 $\epsilon=10$). This is consistent with the pathology living in \emph{high}-energy
 channels, which a ridge scaled to the layer's own energy would not suppress, but we did
 not test that directly and do not assert it. Layer 2 is never selected
-by the recovery-based rule, so this does not affect any reported result --- but it
+by the recovery-based rule, so this does not affect any reported result, but it
 is a second instance of the paper's central theme, and we would rather report it
 than let it go unmentioned.
+
+\subsection{Predictability and recoverability}
+\input{figures/fig1_predictability}
 
 \subsection{Predictability across depth}
 \input{figures/fig1a_appendix}
@@ -149,7 +152,7 @@ $k=2$ on 1.5B, nor charge it with the $-6\%$ that four answers produce at $k=4$.
 So the two selection rules \emph{are} the dissociation. The rule that maximises measured
 recovery earns \mname's largest likelihood recovery anywhere (\phm{70.0}\% at $k=2$ on
 1.5B, at an absolute loss of \phm{3.43} against a dense \phm{2.33}) and its only
-significant accuracy gains --- on models whose absolute quality is unacceptable. The rule
+significant accuracy gains, on models whose absolute quality is unacceptable. The rule
 that keeps quality acceptable earns a real likelihood recovery (\phm{23.3}\% at $k=4$ on
 7B) and no significant accuracy effect at all. Recovery and functional repair agree only once the
 model is already ruined enough for there to be something obvious to repair. The
