@@ -77,9 +77,10 @@ differences are smaller than the run-to-run variation of the evaluation itself: 
 identical configuration under a different task batch shape moves up to 4 of 900
 answers (\Cref{sec:app-noise}). We claim no downstream improvement at those light budgets,
 and symmetrically no harm. Our evidence is also drawn from one model family. Running the deployable configuration on
-Qwen3 (0.6B, 1.7B, 4B) under the same protocol, recovery is non-monotone in scale and absent at
-1.7B despite that being the most damaged cell, so neither the scale trend nor the damage
-ordering should be read as universal (\Cref{sec:app-qwen3}). Translating light-budget likelihood
+Qwen3 (0.6B to 8B) under the same protocol, recovery is non-monotone in model size and absent at
+1.7B despite that being the most damaged cell, so neither the scale trend nor the damage ordering
+should be read as universal; the cross-token extension's advantage, by contrast, does replicate
+there (\Cref{sec:app-qwen3}). Translating light-budget likelihood
 recovery into accuracy, and understanding that exception, are the natural next steps. We also leave open \emph{why} the per-channel predictor succeeds
 where the scalar fails (\Cref{sec:app-experiments}). One clue: a \textbf{cross-token}
 variant, which also reads the previous \emph{token}'s update from the preceding layer, turns

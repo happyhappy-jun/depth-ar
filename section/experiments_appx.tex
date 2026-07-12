@@ -318,15 +318,23 @@ Model & $k$ & skipped & Plain NLL $\downarrow$ & \mname NLL $\downarrow$ & \mnam
 
 Everything above is measured on the Qwen2.5 family. To test whether the scale trend and the
 damage ordering are properties of Transformers or of that family, we ran the deployable
-configuration ($k=4$, damage-based selection) on Qwen3 at 0.6B, 1.7B and 4B, under the
+configuration ($k=4$, damage-based selection) on Qwen3 at 0.6B, 1.7B, 4B and 8B, under the
 identical protocol used for Qwen2.5-1.5B and 7B: BF16 on a single NVIDIA RTX 3090, 32
 calibration sequences of length 1024 from WikiText-103, NLL on the WikiText-2 test split.
 
-\textbf{The scale trend does not replicate.} Recovery is non-monotone across the Qwen3 ladder:
-$+20.5\%$ at 0.6B, $-1.9\%$ at 1.7B and $+4.7\%$ at 4B. The growth with scale we report on
-Qwen2.5 at $k=4$ is therefore a property of that family, not a general property of Transformer
-depth, and we scope the claim accordingly rather than confining our evidence to the family that
-shows it.
+\textbf{The scale trend does not replicate.} Recovery is non-monotone in model size across the
+Qwen3 ladder: $+20.5\%$ at 0.6B, $-1.9\%$ at 1.7B, $+4.7\%$ at 4B and $+12.7\%$ at 8B. The
+growth with scale we report on Qwen2.5 at $k=4$ is therefore a property of that family, not a
+general property of Transformer depth, and we scope the claim accordingly rather than confining
+our evidence to the family that shows it. The three low-damage cells are consistent with the
+damage ordering; 1.7B is the exception, and it is the diagnosed one.
+
+\textbf{The cross-token advantage does replicate.} On every Qwen3 model where either predictor
+works at all, the cross-token extension beats the per-channel predictor: $+21.2\%$ against
+$+20.5\%$ at 0.6B, $+6.2\%$ against $+4.7\%$ at 4B, and $+13.2\%$ against $+12.7\%$ at 8B. At
+1.7B, the compounding-failure cell, both predictors fail and cross-token fails slightly worse
+($-2.7\%$ against $-1.9\%$). The extension's advantage therefore transfers to a second family,
+while the failure mode transfers with it.
 
 \textbf{The damage ordering does not transfer cleanly either, and the exception is the sharpest
 one available.} Qwen3-1.7B is the \emph{most} damaged of the three cells (plain skipping costs
@@ -345,6 +353,13 @@ ordering: what fails at 1.7B is composition, not the relation between damage and
 Whether it rescues it enough is not something three cells can settle, and we do not claim it
 does. The correlation of \Cref{sec:app-noise} remains what we said it was: a description of the
 runs we performed, not a law.
+
+We also note an interaction we cannot resolve with the evidence we have. Within Qwen2.5 at the
+deployable budget, plain-skip damage \emph{falls} with model size while recovery \emph{rises}
+with it, so size and damage push in opposite directions there and our runs cannot separate their
+contributions. The Qwen3 ladder, where damage does not decrease monotonically with size, does
+not settle it either. Disentangling model size, skipping damage and model family is future work,
+and we make no claim about their interplay.
 
 \paragraph{A note on ratios with vanishing denominators.} Recovery fractions are undefined when
 plain skipping does no damage. At 1.7B, several individual layers are \emph{better} skipped
@@ -369,7 +384,7 @@ Model & Dense NLL & Plain Skip NLL & Damage (nats) & \mname rec. & CT rec. \\
 Qwen3-0.6B & 3.17 & 3.61 & 0.44 & +20.5\% & +21.2\% \\
 Qwen3-1.7B & 2.91 & 3.53 & 0.61 & -1.9\% & -2.7\% \\
 Qwen3-4B & 2.71 & 2.81 & 0.10 & +4.7\% & +6.2\% \\
-\bottomrule
+Qwen3-8B & 2.38 & 2.54 & 0.16 & +12.7\% & +13.2\% \\
 \end{tabular}
 \end{table}
 
