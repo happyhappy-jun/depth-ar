@@ -29,8 +29,10 @@ and both budgets, so it composes with whichever selection method a practitioner 
 uses. Copy Update is worse than plain skipping everywhere, so the benefit comes from
 \emph{fitting} the coefficients, not from injecting a nonzero update.
 
-\paragraph{At a matched budget, likelihood recovery grows with scale.} \Cref{tab:main} carries
-the comparison to downstream tasks: at the light, damage-based operating point \mname recovers
+\paragraph{At a matched budget, likelihood recovery grows with scale.} \Cref{tab:main} carries the 7B comparison; at light budgets on
+0.5B and 1.5B every accuracy delta is non-significant, consistent with the necessity rule, and
+the full rows are in \Cref{tab:light}. At the light, damage-based operating point \mname
+recovers
 4.6\%, 10.3\% and 23.3\% of the plain-skip damage on 0.5B, 1.5B and 7B at $k=4$. The trend is
 budget-specific: at $k=2$ recovery is flat to mildly declining with scale (8.4\%, 8.2\%,
 7.3\%), so we claim no general scaling law. The scalar predictor recovers consistently less, and Copy Update is
