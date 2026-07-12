@@ -12,14 +12,14 @@ fails, and at some layers is \emph{worse than dropping the update outright}; onl
 a $d$-dimensional coefficient vector, one coefficient per channel, recovers the
 lost computation. Two further findings sharpen the picture. First, depth is not
 uniformly autoregressive: through the middle of Qwen2.5-0.5B successive blocks
-partially \emph{undo} one another, with \ph{88}\% of channels carrying a negative
+partially \emph{undo} one another, with \phm{88}\% of channels carrying a negative
 coefficient. Second, and more consequentially for practice, \emph{predictability
 does not imply recoverability} --- how well a layer's update can be forecast is
 statistically unrelated to how much damage forecasting it repairs (Spearman
-\ph{$-0.015$}, $p = \ph{0.95}$), so the cheap selection signal that this method
+\phm{$-0.015$}, $p = \phm{0.95}$), so the cheap selection signal that this method
 seems to hand you is the wrong one to use. Selecting layers by measured recovery
-instead, \mname repairs up to \ph{24.7}\% of the language-modelling damage that
-plain skipping causes at matched depth, against \ph{16.3}\% for the scalar
+instead, \mname repairs up to \phm{24.7}\% of the language-modelling damage that
+plain skipping causes at matched depth, against \phm{16.3}\% for the scalar
 predictor. Plain skipping discards computation the model has already forecast ---
 but forecasting it accurately is not the same as getting it back.
 \end{abstract}

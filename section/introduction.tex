@@ -52,7 +52,7 @@ charge.
 The answer to the question is more interesting than a clean yes. Depth is
 \emph{not} the smooth forward trajectory the analogy suggests. Through the middle
 of Qwen2.5-0.5B, consecutive residual updates are mildly \emph{anti}-correlated:
-every fitted coefficient is negative across layers 4--16, and \ph{88}\% of the
+every fitted coefficient is negative across layers 4--16, and \phm{88}\% of the
 individual channels agree on that sign, so successive blocks there partially undo
 one another rather than continuing a path. Genuine depth-wise momentum exists, but
 it is confined to the final quarter of the stack. And the property that looks like
@@ -74,12 +74,12 @@ costs $d$ scalars per skipped block and leaves inference at $O(Td)$. (2)
 \textbf{Predictability is not recoverability.} Held-out explained update energy
 $P_\ell$ --- the cheap, natural selection signal, computable from the dense model
 before any layer is skipped --- is uncorrelated with the damage a predictor
-actually repairs (Spearman \ph{$-0.015$}, $p=\ph{0.95}$, $n=\ph{22}$). Selecting
+actually repairs (Spearman \phm{$-0.015$}, $p=\phm{0.95}$, $n=\phm{22}$). Selecting
 the most predictable layers is not merely suboptimal but actively bad: at two
 skipped blocks it leaves the scalar predictor far \emph{worse} than plain skipping.
 Layer selection must be validated against recovery, which must be measured. (3)
 \textbf{Depth is anti-correlated before it is autoregressive}, as above --- a fact
 about Transformer depth that is independent of our method and that any future
 update-prediction scheme has to contend with. Selecting by measured recovery,
-\mname repairs up to \ph{24.7}\% of the language-modelling damage plain skipping
-causes at matched depth, against \ph{16.3}\% for the scalar predictor.
+\mname repairs up to \phm{24.7}\% of the language-modelling damage plain skipping
+causes at matched depth, against \phm{16.3}\% for the scalar predictor.

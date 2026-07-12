@@ -91,7 +91,7 @@ shows the choice between them matters more than the choice of predictor --- and
 that the cheap one is the wrong one.
 
 \paragraph{Cost.} \mname stores a $d$-dimensional coefficient vector per skipped
-block ($d = \ph{896}$ on Qwen2.5-0.5B), against the $d^2$ parameters a dense
+block ($d = \phm{896}$ on Qwen2.5-0.5B), against the $d^2$ parameters a dense
 boundary map between hidden states would require --- three orders of magnitude
 fewer. Inference cost is unchanged in order: one elementwise multiply and one add,
 $O(Td)$ work against the $O(Td^2)$ the block itself would have cost, on tensors

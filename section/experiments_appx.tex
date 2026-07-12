@@ -8,15 +8,15 @@
 residual update of each block. Before running any experiment we verified the
 wrapper with six checks, all of which pass on Qwen2.5-0.5B (24 blocks, 22
 eligible). The dense wrapper reproduces the unmodified model's logits
-\textbf{bit-exactly} (maximum absolute logit difference $\ph{0.0}$), as do the
-$\aal_\ell = \bm{0}$ reduction to Plain Skip (checked at layers \ph{5}, \ph{9} and
-\ph{13}) and a hand-written single-layer skip (layer \ph{9}). Residual updates are
+\textbf{bit-exactly} (maximum absolute logit difference $\phm{0.0}$), as do the
+$\aal_\ell = \bm{0}$ reduction to Plain Skip (checked at layers \phm{5}, \phm{9} and
+\phm{13}) and a hand-written single-layer skip (layer \phm{9}). Residual updates are
 captured at the block boundary of \cref{eq:residual} to a maximum absolute error of
-$\ph{3.8 \times 10^{-6}}$ against a hidden-state scale of $\ph{1.7 \times 10^{3}}$.
+$\phm{3.8 \times 10^{-6}}$ against a hidden-state scale of $\phm{1.7 \times 10^{3}}$.
 Scrambling the padded token slots moves neither the fitted accumulators nor the
-held-out NLL ($\ph{0.0}$ change, \ph{192} real tokens counted), confirming that
+held-out NLL ($\phm{0.0}$ change, \phm{192} real tokens counted), confirming that
 padding is excluded from \cref{eq:fit}. The selected layer set is non-adjacent by
-construction (minimum gap \ph{2}, first and last blocks excluded).
+construction (minimum gap \phm{2}, first and last blocks excluded).
 
 \subsection{Calibration and evaluation protocol}
 \label{sec:app-protocol}
@@ -49,7 +49,7 @@ which depends on decode-time behaviour we do not measure here.
 We also evaluated a two-tap variant, $\widehat{\dd}_\ell = \alpha_\ell \dd_{\ell-1}
 + \beta_\ell \dd_{\ell-2}$, fitting $(\alpha_\ell, \beta_\ell)$ through a
 $2\times2$ ridge system. Averaged over the eligible layers of Qwen2.5-0.5B it
-improves single-layer recovery over the one-tap scalar by \ph{$+0.0009$} --- that
+improves single-layer recovery over the one-tap scalar by \phm{$+0.0009$} --- that
 is, not at all. The information a second tap adds is negligible next to the
 information a second \emph{channel} adds, which is the point of \cref{eq:diag}: the
 useful axis of capacity here is across the hidden width, not back along depth. We
