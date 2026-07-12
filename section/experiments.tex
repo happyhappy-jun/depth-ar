@@ -76,8 +76,11 @@ no accuracy difference is significant at any of the three scales, and more telli
 differences are smaller than the run-to-run variation of the evaluation itself: re-scoring an
 identical configuration under a different task batch shape moves up to 4 of 900
 answers (\Cref{sec:app-noise}). We claim no downstream improvement at those light budgets,
-and symmetrically no harm. Translating light-budget likelihood recovery into accuracy, and extending the scale trend to
-the Qwen3 family, are the natural next steps. We also leave open \emph{why} the per-channel predictor succeeds
+and symmetrically no harm. Our evidence is also drawn from one model family. Running the deployable configuration on
+Qwen3 (0.6B, 1.7B, 4B) under the same protocol, recovery is non-monotone in scale and absent at
+1.7B despite that being the most damaged cell, so neither the scale trend nor the damage
+ordering should be read as universal (\Cref{sec:app-qwen3}). Translating light-budget likelihood
+recovery into accuracy, and understanding that exception, are the natural next steps. We also leave open \emph{why} the per-channel predictor succeeds
 where the scalar fails (\Cref{sec:app-experiments}). One clue: a \textbf{cross-token}
 variant, which also reads the previous \emph{token}'s update from the preceding layer, turns
 layer 2, the one pathology no ridge could suppress, from a recovery of $-3.31$ into

@@ -313,6 +313,50 @@ Model & $k$ & skipped & Plain NLL $\downarrow$ & \mname NLL $\downarrow$ & \mnam
 \end{tabular}
 \end{table}
 
+\subsection{External validity: the Qwen3 family}
+\label{sec:app-qwen3}
+
+Everything above is measured on the Qwen2.5 family. To test whether the scale trend and the
+damage ordering are properties of Transformers or of that family, we ran the deployable
+configuration ($k=4$, damage-based selection) on Qwen3 at 0.6B, 1.7B and 4B, under the
+identical protocol used for Qwen2.5-1.5B and 7B: BF16 on a single NVIDIA RTX 3090, 32
+calibration sequences of length 1024 from WikiText-103, NLL on the WikiText-2 test split.
+
+\textbf{The scale trend does not replicate.} Recovery is non-monotone across the Qwen3 ladder:
+$+20.5\%$ at 0.6B, $-1.9\%$ at 1.7B and $+4.7\%$ at 4B. The growth with scale we report on
+Qwen2.5 at $k=4$ is therefore a property of that family, not a general property of Transformer
+depth, and we scope the claim accordingly rather than confining our evidence to the family that
+shows it.
+
+\textbf{The damage ordering does not transfer cleanly either, and the exception is the sharpest
+one available.} Qwen3-1.7B is the \emph{most} damaged of the three cells (plain skipping costs
+0.61 nats) and it is the one where \mname recovers nothing at all. On our Qwen2.5 runs, damage
+of that size is where recovery is largest. Qwen3-4B is the least damaged (0.10 nats) and shows
+the small gain the ordering would predict, and 0.6B is consistent as well, so the failure is
+specific rather than total. We have no explanation for the 1.7B cell and we do not offer one.
+It is an out-of-sample counterexample to the ordering that organizes this paper, it was found
+by the first test we ran outside the family the ordering was built on, and it is reported here
+with that weight. The correlation of \Cref{sec:app-noise} should be read as what we said it
+was: a description of the runs we performed, not a law.
+
+\begin{table}[h]
+\centering
+\small
+\caption{\textbf{Qwen3, deployable configuration ($k=4$, damage-based selection).} Damage is the
+NLL cost of plain skipping. CT is the cross-token extension. Recovery is non-monotone in scale,
+and is absent at 1.7B despite that cell being the most damaged.}
+\label{tab:qwen3}
+\begin{tabular}{lccccc}
+\toprule
+Model & Dense NLL & Plain Skip NLL & Damage (nats) & \mname rec. & CT rec. \\
+\midrule
+Qwen3-0.6B & 3.17 & 3.61 & 0.44 & +20.5\% & +21.2\% \\
+Qwen3-1.7B & 2.91 & 3.53 & 0.61 & -1.9\% & -2.7\% \\
+Qwen3-4B & 2.71 & 2.81 & 0.10 & +4.7\% & +6.2\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
 \subsection{Layer selection}
 \input{tables/selection_table}
 
