@@ -1,0 +1,64 @@
+\section{Experimental Details and Additional Results}
+\label{sec:app-experiments}
+
+\subsection{Implementation and correctness checks}
+\label{sec:app-correctness}
+
+\mname is implemented as a wrapper around the decoder stack that intercepts the
+residual update of each block. Before running any experiment we verified the
+wrapper against the following checks: (i) with no layers skipped, the wrapper
+reproduces the original model's logits to within floating-point tolerance; (ii)
+with $\alpha_\ell = 0$, \mname reproduces Plain Skip exactly; (iii) with
+$\alpha_\ell = 1$, it reproduces Copy Update exactly; (iv) a manually skipped
+layer agrees with the generic skip path; (v) residual updates are captured at the
+block boundary of \cref{eq:residual}, after the block's own residual addition;
+and (vi) padding tokens are excluded from the coefficient accumulators of
+\cref{eq:fit}.
+
+\subsection{Calibration and evaluation protocol}
+\label{sec:app-protocol}
+
+Coefficients are fitted on \ph{32} unlabeled C4 sequences of length \ph{512}
+\citep{raffel2020exploring}, and $P_\ell$ is scored on a disjoint held-out split
+of the same size. Statistics are accumulated in FP64 (\cref{eq:fit}) so that no
+hidden states need to be stored. Task evaluation uses fixed example IDs with seed
+42 throughout. Discovery and verification runs (0.5B, 1.5B) are executed in FP32
+on an NVIDIA TITAN X (Pascal) GPU; the headline \topscale runs are executed in
+BF16 on a single NVIDIA RTX 3090 GPU. Neither configuration uses FlashAttention,
+so we use the reference attention implementation throughout. We caution that
+absolute latencies are specific to this hardware, even though the relative
+comparison between methods is not.
+
+\subsection{Latency measurement}
+\label{sec:app-latency}
+
+We report \emph{prefill} latency only: a forward pass with
+\texttt{use\_cache=False}, batch size \ph{8}, at sequence lengths 512 and 2048,
+with \ph{10} warm-up iterations followed by \ph{30} measured iterations, and
+\texttt{torch.cuda.synchronize()} around each timed region. We report the median
+and interquartile range. We make no claim about end-to-end generation latency,
+which depends on decode-time behaviour we do not measure here.
+
+\subsection{Layer selection}
+\label{sec:app-selection}
+
+Unless stated otherwise, the skipped set is the $k$ layers of highest held-out
+$P_\ell$ subject to a non-adjacency constraint: no two skipped blocks may be
+consecutive, so that a skipped block never consumes a \emph{predicted} update as
+the input to its own prediction. We compare this predictability-based selection
+against a low-damage selection rule, which ranks layers by the NLL increase
+caused by skipping each one individually. The comparison separates a failure of
+update \emph{prediction} from a failure of layer \emph{selection}; because \mname
+is applied at an identical layer set as every baseline in \Cref{tab:main}, the
+main result is unaffected by which rule is used.
+
+\subsection{\mname(2) and additional budgets}
+\label{sec:app-ar2}
+
+\Cref{tab:main} reports \mname(1), the single-scalar predictor of
+\cref{eq:ar1}. We also evaluated the two-tap variant \mname(2) of
+\cref{eq:ar2}, which fits $(\alpha_\ell, \beta_\ell)$ through a $2\times2$ ridge
+system. We present \mname(1) as the primary method because its simplicity is part
+of the contribution: a single scalar per skipped block is the smallest possible
+departure from the zero-update assumption, and it is the variant whose cost is
+most obviously negligible.

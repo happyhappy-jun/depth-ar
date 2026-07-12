@@ -1,0 +1,72 @@
+\section{Introduction}
+\label{sec:introduction}
+
+Transformer language models compute by applying a stack of residual blocks, and
+every token pays for every block. Depth is therefore a direct axis of inference
+cost: it multiplies latency, memory traffic, and energy, and unlike hidden width
+it cannot be amortized away by batching. As models grow deeper to grow more
+capable, the cost of simply traversing the stack has become one of the dominant
+terms in the inference bill \citep{zhen2025taming}.
+
+Layer skipping is an attractive response. Removing an entire block eliminates
+real computation --- its attention and MLP matmuls both disappear --- without
+changing the hidden width, the attention pattern, or the KV-cache layout, so it
+composes with the rest of the inference stack for free. A substantial literature
+establishes that Transformers tolerate this surprisingly well: blocks in large
+models are highly redundant, and a well-chosen subset can be deleted with modest
+degradation \citep{men2024shortgpt, gromov2024unreasonable, fan2020reducing}.
+Almost all of this work asks the same question --- \emph{which} blocks to remove
+--- and answers it with progressively better importance scores. Far less
+attention has gone to the operator that does the removing. When a block is
+skipped, its residual update is replaced by zero. That choice is never argued
+for; it is simply what ``removing a layer'' has come to mean. It is
+computationally convenient, and representationally wasteful.
+
+A separate line of work, meanwhile, tells us that the residual stream is not a
+sequence of unrelated states but a trajectory. Residual networks behave like
+ensembles of shallow paths whose contributions accumulate smoothly
+\citep{veit2016residual}, residual connections encourage successive blocks to
+iteratively refine a single evolving representation
+\citep{jastrzebski2018residual}, and a hidden state at one depth can often be
+mapped to a nearby depth by a linear transformation \citep{din2023jump,
+belrose2023eliciting}. If depth is a trajectory, a block's update is not an
+isolated quantity: it is the next step along a path the model has already been
+walking for several layers --- and steps along a smooth path are predictable from
+the steps before them.
+
+\begin{center}
+\emph{How much of a skipped Transformer block's residual update \\ is predictable
+from the preceding depth trajectory, \\ and can it be recovered at negligible
+cost?}
+\end{center}
+
+We take this question literally. Writing the pre-norm update at layer $\ell$ as
+$\dd_\ell = F_\ell(\hh_\ell)$, so that $\hh_{\ell+1} = \hh_\ell + \dd_\ell$,
+plain skipping is precisely the estimator $\widehat{\dd}_\ell = 0$ --- a
+zero-order predictor that ignores every update the model has already computed.
+We instead treat $\dd_{\ell-1}, \dd_{\ell-2}, \dots$ as a short time series
+indexed by depth and fit an autoregressive model that forecasts $\dd_\ell$ from
+it. This is a strictly better-informed estimator, built from information already
+sitting in the residual stream at inference time, free of charge.
+
+The empirical fact that makes this work is that consecutive residual updates are
+strongly aligned. Over substantial regions of the network --- concentrated in the
+middle layers --- a held-out linear forecast of $\dd_\ell$ from $\dd_{\ell-1}$
+explains a large fraction of that update's energy, and the layers where it does
+so are the layers where update prediction repairs the most skipping damage
+(\Cref{sec:experiments}). Transformer depth, in short, has momentum.
+
+We introduce \textbf{\mname (Depth-wise AutoRegressive update prediction)}, which
+exploits that momentum to make skipping cheaper in quality without making it more
+expensive in compute. \mname contributes three things: (1) we show that residual
+updates are locally predictable across large portions of Transformer depth, and
+that this predictability is measurable \emph{before} any layer is skipped, from a
+tiny unlabeled calibration set; (2) we replace the zero-update assumption with a
+one- or two-tap autoregressive forecast whose entire fitted state is one or two
+scalars per skipped layer, obtained in closed form with no gradient training; and
+(3) we show that this dominates plain skipping at matched skipped layers, from
+0.5B to \topscale parameters. At four skipped blocks, \mname recovers \ph{62}\%
+of the accuracy plain skipping gives up --- \ph{1.3} points of average downstream
+accuracy lost against \ph{3.4} --- while adding only $O(Td)$ scaled vector
+additions and matching plain skipping's prefill latency to within \ph{2}\%. The
+zero-update assumption, it turns out, gives up quality for no compute in return.

@@ -1,0 +1,47 @@
+\section{Experiments}
+\label{sec:experiments}
+
+\input{tables/main_table}
+
+\paragraph{Setup.} We evaluate on Qwen2.5-0.5B, Qwen2.5-1.5B, and
+Qwen2.5-\topscale \citep{qwen2025}. Coefficients are fitted in closed form
+(\cref{eq:fit}) on \ph{32} unlabeled C4 sequences of length \ph{512}
+\citep{raffel2020exploring}, with a disjoint held-out split of the same size used
+to score $P_\ell$; no task data is used for calibration. We report WikiText-2
+negative log-likelihood \citep{merity2017pointer} and accuracy on HellaSwag
+\citep{zellers2019hellaswag}, PIQA \citep{bisk2020piqa}, and ARC-Easy
+\citep{clark2018think}, all with fixed example IDs and seed 42. Every method is
+compared \emph{at an identical skipped-layer set}, so differences isolate the
+update predictor rather than the layer-selection rule. The 0.5B and 1.5B models
+run in FP32 on an NVIDIA TITAN X (Pascal) GPU; the \topscale model runs in BF16 on
+a single NVIDIA RTX 3090 GPU. Neither configuration uses FlashAttention, so all
+runs use the reference attention implementation. We report \emph{prefill} latency
+only, CUDA-synchronized, at sequence lengths 512 and 2048 with
+\texttt{use\_cache=False}; we make no claim about end-to-end generation speed.
+
+\paragraph{\mname dominates plain skipping at matched depth.} \Cref{tab:main}
+reports the main comparison. At $k=4$ skipped blocks on \topscale, plain skipping
+costs \ph{3.4} points of average downstream accuracy relative to the dense model,
+while \mname costs \ph{1.3} --- a gap recovery of \ph{62}\%. The ordering is consistent
+across every model and budget we ran: Copy Update is already better than plain
+skipping, confirming that a nonzero update is better than none, and \mname is
+better still, confirming that the improvement comes from \emph{fitting} the
+coefficient rather than from merely reusing the previous update. The same
+ranking holds on WikiText-2 NLL, where \mname absorbs roughly \ph{half} of the
+degradation plain skipping introduces.
+
+\paragraph{Predictability forecasts where skipping is safe.} The per-layer score
+$P_\ell$ of \cref{eq:pscore} is not merely an internal quantity: layers with high
+held-out $P_\ell$ are the layers at which \mname recovers the most single-layer
+damage. Because $P_\ell$ is computed on the dense model from unlabeled text, this
+gives a selection signal that costs one forward pass and requires no downstream
+evaluation to calibrate.
+
+\paragraph{The quality gain is nearly free.} \mname's overhead is one scaled
+vector addition per skipped block. Measured prefill latency is within \ph{2}\% of
+plain skipping at both sequence lengths, and both remain clearly faster than the
+dense model, so \mname moves quality without giving back the compute saving that
+motivated skipping in the first place.
+
+We provide the full layer-wise profiles, the 0.5B development results, the
+\mname(2) comparison, and per-task breakdowns in \Cref{sec:app-experiments}.

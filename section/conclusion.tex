@@ -1,0 +1,8 @@
+\section{Conclusion}
+\label{sec:conclusion}
+
+Plain layer skipping treats a missing residual update as zero; \mname treats it
+as predictable. Fitting one or two scalars per skipped block against the
+preceding depth trajectory --- in closed form, on unlabeled text, with no gradient
+training --- recovers \ph{62}\% of the quality that skipping discards, at $O(Td)$
+cost. Transformer depth carries momentum, and plain skipping throws it away.
