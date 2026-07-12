@@ -1,6 +1,7 @@
 \section{Experiments}
 \label{sec:experiments}
 
+\input{figures/fig1_predictability}
 \input{tables/main_table}
 \input{tables/selection_table}
 
@@ -33,9 +34,10 @@ everywhere, confirming that the benefit comes from \emph{fitting} the coefficien
 and not from injecting a nonzero update.
 
 \paragraph{Predictability does not imply recoverability.} The most striking
-negative result is about \emph{selection}, not prediction. Across the 22 eligible
-layers of Qwen2.5-0.5B, held-out predictability $P_\ell$ and the fraction of
-skipping damage a predictor actually repairs are statistically unrelated (Spearman
+negative result is about \emph{selection}, not prediction, and it is visible in
+\Cref{fig:momentum}. Across the 22 eligible layers of Qwen2.5-0.5B, held-out
+predictability $P_\ell$ and the fraction of skipping damage a predictor actually
+repairs are statistically unrelated (Spearman
 \phm{$-0.015$}, $p = \phm{0.95}$). Layer 3 is the extreme case: a single scalar
 explains \phm{90}\% of its update energy --- by far the most predictable layer in
 the network --- and yet substituting that prediction is markedly worse than
@@ -44,7 +46,12 @@ therefore not merely suboptimal, it is actively harmful (\Cref{tab:selection},
 top block). This matters because $P_\ell$ is exactly the signal this method
 appears to hand you for free, and it is the one a practitioner would reach for
 first. Accurate reconstruction of the update in residual space is simply not the
-same objective as preserving the model's function.
+same objective as preserving the model's function. The same blindness recurs one
+level down, in hyperparameter selection: choosing the ridge coefficient of
+\cref{eq:fit} by held-out $P_\ell$ selects a value that leaves development NLL at
+\phm{11.01} against a dense \phm{2.73}. Because $P_\ell$ is energy-weighted,
+low-energy channels barely register in it --- and it is precisely their
+unregularized coefficients that wreck the model.
 
 \paragraph{Depth is anti-correlated before it is autoregressive.} The momentum the
 method assumes is not a general property of depth. Through the middle of
@@ -69,7 +76,7 @@ free.
 \paragraph{Why the per-channel predictor wins is not yet settled.} We can measure
 that it does, and we can dissect one clear case of scalar failure: at layer 3 the
 fitted scalar is \phm{$+1.10$} while the median channel coefficient is
-\phm{$-0.30$} and \phm{76}\% of channels are negative, so the norm-weighted scalar
+\phm{$-0.20$} and \phm{76}\% of channels are negative, so the norm-weighted scalar
 moves three quarters of the channels in the wrong direction. But this cannot be
 the whole story, because \mname also outperforms the scalar at layers whose
 channels agree in sign (\Cref{tab:selection}, middle block). We therefore report

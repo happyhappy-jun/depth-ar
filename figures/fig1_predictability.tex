@@ -1,26 +1,30 @@
 \begin{figure*}[t]
 \centering
 \begin{subfigure}{0.48\textwidth}
-\includegraphics[width=0.95\linewidth]{figures/predictability_profile.pdf}
+\includegraphics[width=0.95\linewidth]{figures/fig1a_predictability.pdf}
 \caption{Predictability across depth}
 \label{fig:momentum-profile}
 \end{subfigure}
 \hfill
 \begin{subfigure}{0.48\textwidth}
-\includegraphics[width=0.95\linewidth]{figures/recovery_vs_p.pdf}
+\includegraphics[width=0.95\linewidth]{figures/fig1b_recovery_vs_P.pdf}
 \caption{Recovery vs.\ predictability}
 \label{fig:momentum-recovery}
 \end{subfigure}
-\caption{\textbf{Transformer depth has predictable local momentum.} \emph{Left:}
-held-out explained update energy $P_\ell$ (\cref{eq:pscore}) against normalized
-layer depth, for each model; markers indicate the layers selected for skipping.
-Predictability is concentrated in the middle of the network, and the profile has
-the same qualitative shape at every scale. \emph{Right:} for each layer, the
-fraction of single-layer plain-skip NLL damage that \mname recovers, plotted
-against that layer's $P_\ell$. Layers whose updates are predictable are the layers
-where update prediction repairs the most damage, so $P_\ell$ --- computable from
-the dense model on unlabeled text, before any skipping decision --- forecasts where
-skipping is safe. Measurements for 0.5B and 1.5B are made on an NVIDIA TITAN X
-(Pascal) GPU and for Qwen2.5-\topscale on a single NVIDIA RTX 3090 GPU.}
+\caption{\textbf{Predictability is real, concentrated, and almost useless for choosing
+layers.} \emph{Left:} held-out explained update energy $P_\ell$ (\cref{eq:pscore})
+against normalized depth in Qwen2.5-0.5B, for the scalar predictor (\cref{eq:ar1}) and
+for \mname (\cref{eq:diag}). Plain skipping is the $P_\ell \equiv 0$ baseline. The
+per-channel predictor explains more of the update at nearly every depth, and one layer
+--- layer 3 --- stands far above the rest, at $P_\ell = \phm{0.90}$. \emph{Right:} for
+each eligible layer, the fraction of that layer's single-layer plain-skip NLL damage the
+scalar predictor repairs, against its $P_\ell$. The two are statistically unrelated
+(Spearman $\phm{-0.015}$, $p = \phm{0.946}$, $n = \phm{22}$), and layer~3 --- the most
+predictable layer in the network --- is the \emph{worst} layer to predict: substituting
+its near-perfect forecast is markedly worse than dropping the update outright (recovery
+$\phm{-0.825}$). Forecasting a skipped update accurately in residual space is not the
+same as preserving the model's function. Coefficients are fitted on 16 WikiText-103
+sequences and scored on 16 disjoint held-out sequences, in FP32 on an NVIDIA TITAN X
+(Pascal) GPU.}
 \label{fig:momentum}
 \end{figure*}

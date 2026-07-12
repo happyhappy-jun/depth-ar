@@ -55,6 +55,23 @@ information a second \emph{channel} adds, which is the point of \cref{eq:diag}: 
 useful axis of capacity here is across the hidden width, not back along depth. We
 therefore report the one-tap predictor throughout and do not pursue longer windows.
 
+\subsection{The ridge coefficient}
+\label{sec:app-ridge}
+
+\Cref{eq:fit} carries a ridge term $\epsilon$. We swept it over
+$\{0, 10^{-2}, 10^{-1}, 1, 10\}$ and selected $\epsilon = \phm{0.01}$ by mean
+single-layer NLL recovery on the development split; every number reported in the
+paper is measured on the test split. Two observations are worth recording. First,
+the ridge is a \emph{stability} guard, not a source of gains: across the tested
+range it moves mean recovery by a few percent, and we make no claim that tuning it
+matters. Second, it does not rescue layer 2, whose recovery stays deeply negative
+at every strength tested (\phm{$-3.68$} at $\epsilon=0.01$, still \phm{$-2.42$} at
+$\epsilon=10$); the pathology there lives in \emph{high}-energy channels, which a
+ridge scaled to the layer's own energy cannot suppress. Layer 2 is never selected
+by the recovery-based rule, so this does not affect any reported result --- but it
+is a second instance of the paper's central theme, and we would rather report it
+than let it go unmentioned.
+
 \subsection{Layer selection}
 \label{sec:app-selection}
 
