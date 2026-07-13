@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 672" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" role="img" aria-label="Rules the AI wrote for itself, verbatim from its own commit messages.">
+  <title>Rules the AI wrote for itself — verbatim from its commit messages</title>
+
+  <rect x="8" y="8" width="884" height="656" rx="16" fill="#0f2236" stroke="#24405c" stroke-width="1.5"/>
+
+  <!-- header -->
+  <text x="40" y="52" font-size="24" font-weight="700" fill="#FF5A4D">Rules the AI wrote for itself 🦞</text>
+  <text x="40" y="80" font-size="12.5" fill="#8a94a6">Left alone for under 4 hours, the AI became a stern methodologist. Every line below is verbatim from its own commit messages.</text>
+  <line x1="40" y1="100" x2="860" y2="100" stroke="#24405c" stroke-width="1"/>
+
+  <!-- Law 1 -->
+  <circle cx="58" cy="138" r="14" fill="#FF5A4D"/>
+  <text x="58" y="143" text-anchor="middle" font-size="15" font-weight="700" fill="#0f2236">1</text>
+  <text x="88" y="143" font-size="16" font-weight="700" fill="#f2f5fa">“A number I cannot account for is a number I do not print.”</text>
+  <text x="88" y="165" font-size="12.5" fill="#8a94a6">Dropped real, already-collected data rather than break its own multiple-comparison accounting.</text>
+
+  <!-- Law 2 -->
+  <circle cx="58" cy="222" r="14" fill="#FF5A4D"/>
+  <text x="58" y="227" text-anchor="middle" font-size="15" font-weight="700" fill="#0f2236">2</text>
+  <text x="88" y="227" font-size="16" font-weight="700" fill="#f2f5fa">“A figure I have not looked at does not go in the paper —</text>
+  <text x="88" y="249" font-size="16" font-weight="700" fill="#f2f5fa">and that rule does not bend for a deadline.”</text>
+  <text x="88" y="271" font-size="12.5" fill="#8a94a6">Refused to ship an uninspected figure at the buzzer.</text>
+
+  <!-- Law 3 -->
+  <circle cx="58" cy="326" r="14" fill="#FF5A4D"/>
+  <text x="58" y="331" text-anchor="middle" font-size="15" font-weight="700" fill="#0f2236">3</text>
+  <text x="88" y="331" font-size="16" font-weight="700" fill="#f2f5fa">“A warn is a non-check.”</text>
+  <text x="88" y="353" font-size="12.5" fill="#8a94a6">Caught its own quality gate quietly downgrading to a warning, and made it verify for real again.</text>
+
+  <!-- Law 4 -->
+  <circle cx="58" cy="410" r="14" fill="#FF5A4D"/>
+  <text x="58" y="415" text-anchor="middle" font-size="15" font-weight="700" fill="#0f2236">4</text>
+  <text x="88" y="415" font-size="16" font-weight="700" fill="#f2f5fa">“‘matches or beats’ is a banned construction —</text>
+  <text x="88" y="437" font-size="16" font-weight="700" fill="#f2f5fa">a softener that launders a regression into a tie.”</text>
+  <text x="88" y="459" font-size="12.5" fill="#8a94a6">Outlawed its own weasel-words after one nearly hid a worse result as a draw.</text>
+
+  <!-- Law 5 -->
+  <circle cx="58" cy="514" r="14" fill="#FF5A4D"/>
+  <text x="58" y="519" text-anchor="middle" font-size="15" font-weight="700" fill="#0f2236">5</text>
+  <text x="88" y="519" font-size="16" font-weight="700" fill="#f2f5fa">“…that evidence goes AGAINST us. It is in anyway.”</text>
+  <text x="88" y="541" font-size="12.5" fill="#8a94a6">On publishing a follow-up result that argued against its own paper.</text>
+
+  <!-- footer punchline -->
+  <line x1="40" y1="580" x2="860" y2="580" stroke="#24405c" stroke-width="1"/>
+  <text x="40" y="610" font-size="13.5" fill="#cdd8e6">The best part: at <tspan fill="#FF5A4D" font-weight="700">+3:05</tspan> its own <tspan font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" fill="#FF5A4D">git add -A</tspan> swept a broken figure into the paper.</text>
+  <text x="40" y="634" font-size="13.5" fill="#cdd8e6">It wrote Law <tspan fill="#FF5A4D" font-weight="700">#2</tspan> twenty-one minutes later.</text>
+</svg>

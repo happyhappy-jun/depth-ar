@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 744" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" role="img" aria-label="Commit history: 45 commits in one autonomous session, 39 by the AI scientist, with self-corrections highlighted.">
+  <title>Commit history — one autonomous session, every message written by the agent</title>
+
+  <!-- self-contained dark poster panel (renders on light or dark README) -->
+  <rect x="8" y="8" width="884" height="728" rx="16" fill="#0f2236" stroke="#24405c" stroke-width="1.5"/>
+
+  <!-- header -->
+  <text x="40" y="52" font-size="24" font-weight="700" fill="#FF5A4D">45 commits. One autonomous session.</text>
+  <text x="40" y="80" font-size="13.5" fill="#8a94a6">39 by the AI (git author: lobster 🦞)  ·  under 4 hours  ·  every commit message unedited by a human</text>
+  <line x1="40" y1="100" x2="860" y2="100" stroke="#24405c" stroke-width="1"/>
+
+  <!-- faint emphasis bands behind the highlighted rows -->
+  <rect x="118" y="384" width="744" height="64" rx="8" fill="#FF5A4D" opacity="0.07"/>
+  <rect x="118" y="448" width="744" height="64" rx="8" fill="#FF5A4D" opacity="0.07"/>
+  <rect x="118" y="512" width="744" height="64" rx="8" fill="#FF5A4D" opacity="0.07"/>
+
+  <!-- timeline spine -->
+  <line x1="122" y1="197" x2="122" y2="647" stroke="#24405c" stroke-width="2"/>
+
+  <!-- ================= ROWS ================= -->
+
+  <!-- r2 START -->
+  <circle cx="122" cy="203" r="5" fill="#FF5A4D"/>
+  <text x="104" y="207" text-anchor="end" font-size="11.5" fill="#8a94a6">+0:00</text>
+  <text x="146" y="207" font-size="14" font-weight="600" fill="#e6ebf2">Depth-AR: title, abstract, intro, method, experiments</text>
+  <rect x="804" y="193" width="54" height="20" rx="10" fill="#FF5A4D"/>
+  <text x="831" y="207" text-anchor="middle" font-size="11" font-weight="700" fill="#0f2236">START</text>
+
+  <!-- r3 pivot -->
+  <circle cx="122" cy="245" r="5" fill="#FF5A4D"/>
+  <text x="104" y="249" text-anchor="end" font-size="11.5" fill="#8a94a6">+0:21</text>
+  <text x="146" y="249" font-size="14" fill="#cdd8e6">PIVOT: per-channel Depth-AR becomes the method</text>
+
+  <!-- r4 self-catch: latency -->
+  <circle cx="122" cy="287" r="5" fill="#FF5A4D"/>
+  <text x="104" y="291" text-anchor="end" font-size="11.5" fill="#8a94a6">+0:31</text>
+  <text x="146" y="291" font-size="14" fill="#cdd8e6">FIX: a &quot;measured&quot; latency number that was never measured</text>
+  <rect x="750" y="277" width="108" height="20" rx="10" fill="#F5A623"/>
+  <text x="804" y="291" text-anchor="middle" font-size="11" font-weight="700" fill="#0f2236">CAUGHT ITSELF</text>
+
+  <!-- r5 gate -->
+  <circle cx="122" cy="329" r="5" fill="#FF5A4D"/>
+  <text x="104" y="333" text-anchor="end" font-size="11.5" fill="#8a94a6">+0:51</text>
+  <text x="146" y="333" font-size="14" fill="#cdd8e6">GATE: the story is LIKELIHOOD recovery, not FUNCTION recovery</text>
+
+  <!-- r6 pre-registered -->
+  <circle cx="122" cy="371" r="5" fill="#FF5A4D"/>
+  <text x="104" y="375" text-anchor="end" font-size="11.5" fill="#8a94a6">+2:14</text>
+  <text x="146" y="375" font-size="14" fill="#cdd8e6">A pre-registered test — prediction written before the data</text>
+  <rect x="740" y="361" width="118" height="20" rx="10" fill="#2BB3A3"/>
+  <text x="799" y="375" text-anchor="middle" font-size="11" font-weight="700" fill="#0f2236">PRE-REGISTERED</text>
+
+  <!-- r7 HIGHLIGHT: honest non-replication -->
+  <circle cx="122" cy="413" r="7" fill="#FF5A4D" stroke="#ffd9d4" stroke-width="2"/>
+  <text x="104" y="417" text-anchor="end" font-size="11.5" fill="#8a94a6">+2:44</text>
+  <text x="146" y="411" font-size="14.5" font-weight="700" fill="#ffffff">Qwen3 cells: an HONEST NON-REPLICATION</text>
+  <rect x="726" y="401" width="132" height="20" rx="10" fill="#FF5A4D"/>
+  <text x="792" y="415" text-anchor="middle" font-size="11" font-weight="700" fill="#0f2236">HONEST NEGATIVE</text>
+  <rect x="146" y="428" width="3" height="16" fill="#FF5A4D"/>
+  <text x="158" y="441" font-size="12.5" font-style="italic" fill="#c9d4e2">“…that evidence goes AGAINST us. It is in anyway.”</text>
+
+  <!-- r8 HIGHLIGHT: flagged, not faked -->
+  <circle cx="122" cy="477" r="7" fill="#FF5A4D" stroke="#ffd9d4" stroke-width="2"/>
+  <text x="104" y="481" text-anchor="end" font-size="11.5" fill="#8a94a6">+3:05</text>
+  <text x="146" y="475" font-size="14.5" font-weight="700" fill="#ffffff">FIX: a broken figure had been swept in — restored it</text>
+  <rect x="722" y="465" width="136" height="20" rx="10" fill="#F5A623"/>
+  <text x="790" y="479" text-anchor="middle" font-size="11" font-weight="700" fill="#0f2236">FLAGGED, NOT FAKED</text>
+  <rect x="146" y="492" width="3" height="16" fill="#FF5A4D"/>
+  <text x="158" y="505" font-size="12.5" font-style="italic" fill="#c9d4e2">“flagging this rather than shipping a silently-illegible figure.”</text>
+
+  <!-- r9 HIGHLIGHT: retraction -->
+  <circle cx="122" cy="541" r="7" fill="#FF5A4D" stroke="#ffd9d4" stroke-width="2"/>
+  <text x="104" y="545" text-anchor="end" font-size="11.5" fill="#8a94a6">+3:26</text>
+  <text x="146" y="539" font-size="14.5" font-weight="700" fill="#ffffff">CLAIM CORRECTION: “scales with damage” is FALSE on accuracy</text>
+  <rect x="768" y="529" width="90" height="20" rx="10" fill="#FF5A4D"/>
+  <text x="813" y="543" text-anchor="middle" font-size="11" font-weight="700" fill="#0f2236">RETRACTION</text>
+  <rect x="146" y="556" width="3" height="16" fill="#FF5A4D"/>
+  <text x="158" y="569" font-size="12.5" font-style="italic" fill="#c9d4e2">“The paper's spine sentence was wrong … and it was in NINE places.”</text>
+
+  <!-- r10 final -->
+  <circle cx="122" cy="605" r="5" fill="#FF5A4D"/>
+  <text x="104" y="609" text-anchor="end" font-size="11.5" fill="#8a94a6">+3:46</text>
+  <text x="146" y="609" font-size="14" font-weight="600" fill="#e6ebf2">Restore tables to the body; fit 4 pages</text>
+  <rect x="804" y="595" width="54" height="20" rx="10" fill="#3FB950"/>
+  <text x="831" y="609" text-anchor="middle" font-size="11" font-weight="700" fill="#0f2236">FINAL</text>
+
+  <!-- r11 human syncs -->
+  <circle cx="122" cy="647" r="5" fill="#12263b" stroke="#6b7280" stroke-width="2"/>
+  <text x="104" y="651" text-anchor="end" font-size="11.5" fill="#6b7280">later</text>
+  <text x="146" y="651" font-size="14" fill="#8a94a6">Update on Overleaf  ×6</text>
+  <rect x="756" y="637" width="102" height="20" rx="10" fill="none" stroke="#4a5b73"/>
+  <text x="807" y="651" text-anchor="middle" font-size="11" fill="#8a94a6">Overleaf sync</text>
+
+  <!-- footer -->
+  <line x1="40" y1="686" x2="860" y2="686" stroke="#24405c" stroke-width="1"/>
+  <text x="40" y="714" font-size="13" fill="#FF5A4D" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">$ git log</text>
+  <text x="120" y="714" font-size="13" fill="#8a94a6">— the full history, in the AI's own words: retractions, self-audits, honest negatives.</text>
+</svg>
