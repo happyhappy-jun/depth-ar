@@ -6,7 +6,7 @@
 
 **Co-authored by [Byungjun Yoon](https://github.com/happyhappy-jun), [Woomin Song](https://github.com/woominsong) & our AI Scientist** 🙏
 
-> 🔬 **AI-written, fully human-reviewed.** The paper was peer-reviewed in ICML format at the event by a panel of **11 expert judges** — professors and researchers across ML, AI safety, robotics, and biotech.
+> 🔬 **Fully AI-written, with only light high-level human guidance, then judged by human experts.** The AI scientist wrote the paper end to end; humans stepped in only for occasional high-level direction, never to revise the text. It was then evaluated in ICML format by a panel of **11 expert judges**: professors and researchers across ML, AI safety, robotics, and biotech.
 
 <div align="center">
 

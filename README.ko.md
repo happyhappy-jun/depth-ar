@@ -6,7 +6,7 @@
 
 **공동 저자: [Byungjun Yoon](https://github.com/happyhappy-jun), [Woomin Song](https://github.com/woominsong) & 우리의 AI 사이언티스트** 🙏
 
-> 🔬 **AI가 쓰고, 사람이 리뷰했습니다.** 이 논문은 행사에서 ML·AI Safety,Robotics,Biotech 분야의 **Human 심사위원 11명**에게 ICML 형식으로 동료 심사(peer review)를 받았습니다.
+> 🔬 **온전히 AI가 쓰고, 최소한의 하이레벨 가이드만 더해, 사람 전문가들이 심사했습니다.** 논문은 AI 사이언티스트가 처음부터 끝까지 작성했으며, 사람은 이따금 하이레벨 방향만 제시했을 뿐 본문을 직접 고치지 않았습니다. 그리고 ML·AI Safety, Robotics, Biotech 분야의 **전문 심사위원 11명**이 ICML 형식으로 평가했습니다.
 
 <div align="center">
 
