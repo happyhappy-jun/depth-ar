@@ -4,6 +4,9 @@
 
 ## Depth-AR — a research paper written end-to-end by an AI scientist
 
+[![Harness: writing-driven-autoresearch](https://img.shields.io/badge/harness-writing--driven--autoresearch-181717?logo=github)](https://github.com/happyhappy-jun/writing-driven-autoresearch)
+[![Blog: how we built it](https://img.shields.io/badge/blog-how_we_built_it-4a76c9)](https://byungjunyoon.ai/writing-driven-autoresearch/)
+
 **Co-authored by [Byungjun Yoon](https://github.com/happyhappy-jun), [Woomin Song](https://github.com/woominsong) & our AI Scientist** 🙏
 
 > 🔬 **Fully AI-written, with only light high-level human guidance, then judged by human experts.** The AI scientist wrote the paper end to end; humans stepped in only for occasional high-level direction, never to revise the text. It was then evaluated in ICML format by a panel of **11 expert judges**: professors and researchers across ML, AI safety, robotics, and biotech.
@@ -39,6 +42,10 @@ The AI kept setting itself hard rules and quoting them back — banning its own 
 ## The paper, in one line
 
 **Depth-AR** — instead of zeroing a skipped Transformer layer's update, *predict* it from the layers before it. 📄 [`paper.pdf`](paper.pdf)
+
+## How it was built
+
+This repo is the *paper* — the harness that wrote it lives in **[happyhappy-jun/writing-driven-autoresearch](https://github.com/happyhappy-jun/writing-driven-autoresearch)**: the three agent personas, the decision ledger (136 timestamped decisions), and the integrity tooling that kept the paper honest. The full story of how and why we built it: **[the blog post](https://byungjunyoon.ai/writing-driven-autoresearch/)**.
 
 ---
 
